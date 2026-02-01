@@ -115,7 +115,7 @@ export default function Settings({ onBack }) {
                     }
                     placeholder="123 Main St, Suite 100&#10;New York, NY 10001"
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
                   />
                 </div>
               </div>

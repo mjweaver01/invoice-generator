@@ -1,3 +1,5 @@
+import { formatCurrency } from "../utils";
+
 export default function LineItem({
   item,
   index,
@@ -35,7 +37,7 @@ export default function LineItem({
       </div>
       <div className="col-span-3">
         <div className="px-3 py-2 bg-gray-50 rounded-lg text-right font-medium">
-          ${amount.toFixed(2)}
+          {formatCurrency(amount)}
         </div>
       </div>
       <div className="col-span-1">

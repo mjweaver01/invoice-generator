@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import LineItem from "./LineItem";
 import { api } from "../api";
+import { formatCurrency } from "../utils";
 
 export default function InvoiceForm({ invoice, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -246,14 +247,14 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Client Address
                 </label>
-                <input
-                  type="text"
+                <textarea
                   value={formData.client_address}
                   onChange={(e) =>
                     handleChange("client_address", e.target.value)
                   }
-                  placeholder="Optional"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter business address"
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
                 />
               </div>
             </div>
@@ -326,12 +327,12 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 <div className="flex justify-between mb-3 text-gray-700">
                   <span>Hourly Rate:</span>
                   <span className="font-semibold">
-                    ${formData.hourly_rate.toFixed(2)}
+                    {formatCurrency(formData.hourly_rate)}
                   </span>
                 </div>
                 <div className="flex justify-between text-2xl font-bold text-gray-900 pt-3 border-t border-gray-300">
                   <span>Total:</span>
-                  <span>${calculateTotal().toFixed(2)}</span>
+                  <span>{formatCurrency(calculateTotal())}</span>
                 </div>
               </div>
             </div>

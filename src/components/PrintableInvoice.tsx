@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 import { api } from "../api";
+import { formatCurrency } from "../utils";
 
 export default function PrintableInvoice({ invoice, onBack }) {
   const [fullInvoice, setFullInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadFullInvoice();
@@ -20,9 +23,10 @@ export default function PrintableInvoice({ invoice, onBack }) {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = useReactToPrint({
+    contentRef: invoiceRef,
+    documentTitle: fullInvoice?.invoice_number || "Invoice",
+  });
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -68,7 +72,10 @@ export default function PrintableInvoice({ invoice, onBack }) {
       </div>
 
       {/* Printable Invoice */}
-      <div className="printable-invoice bg-white rounded-xl shadow-sm p-12">
+      <div
+        ref={invoiceRef}
+        className="printable-invoice bg-white rounded-xl shadow-sm p-12"
+      >
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">INVOICE</h1>
@@ -150,10 +157,10 @@ export default function PrintableInvoice({ invoice, onBack }) {
                 <td className="py-4 text-gray-900">{item.description}</td>
                 <td className="py-4 text-right text-gray-900">{item.hours}</td>
                 <td className="py-4 text-right text-gray-900">
-                  ${fullInvoice.hourly_rate.toFixed(2)}
+                  {formatCurrency(fullInvoice.hourly_rate)}
                 </td>
                 <td className="py-4 text-right text-gray-900 font-medium">
-                  ${(item.hours * fullInvoice.hourly_rate).toFixed(2)}
+                  {formatCurrency(item.hours * fullInvoice.hourly_rate)}
                 </td>
               </tr>
             ))}
@@ -166,13 +173,13 @@ export default function PrintableInvoice({ invoice, onBack }) {
             <div className="flex justify-between py-3 border-b border-gray-200">
               <span className="text-gray-700">Subtotal</span>
               <span className="text-gray-900 font-medium">
-                ${subtotal.toFixed(2)}
+                {formatCurrency(subtotal)}
               </span>
             </div>
             <div className="flex justify-between py-4 border-t-2 border-gray-300">
               <span className="text-xl font-bold text-gray-900">Total</span>
               <span className="text-xl font-bold text-gray-900">
-                ${subtotal.toFixed(2)}
+                {formatCurrency(subtotal)}
               </span>
             </div>
           </div>

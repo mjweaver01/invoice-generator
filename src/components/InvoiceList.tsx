@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatCurrency } from "../utils";
 
 export default function InvoiceList({
   invoices,
@@ -124,7 +125,7 @@ export default function InvoiceList({
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-gray-900 mb-3">
-                    ${invoice.total?.toFixed(2) || "0.00"}
+                    {formatCurrency(invoice.total || 0)}
                   </div>
                   <div className="flex gap-2">
                     <button
