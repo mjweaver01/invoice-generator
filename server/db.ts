@@ -14,7 +14,6 @@ db.run(`
     business_name TEXT NOT NULL DEFAULT '',
     business_address TEXT NOT NULL DEFAULT '',
     default_hourly_rate REAL NOT NULL DEFAULT 150.0,
-    default_payment_terms TEXT NOT NULL DEFAULT 'Net 30',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
@@ -43,7 +42,6 @@ db.run(`
     client_address TEXT,
     invoice_date TEXT NOT NULL,
     hourly_rate REAL NOT NULL DEFAULT 150.0,
-    payment_terms TEXT,
     status TEXT DEFAULT 'draft',
     total REAL DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -70,8 +68,7 @@ const queries = {
   updateSettings: db.prepare(`
     UPDATE settings 
     SET your_name = ?, business_name = ?, business_address = ?, 
-        default_hourly_rate = ?, default_payment_terms = ?,
-        updated_at = CURRENT_TIMESTAMP
+        default_hourly_rate = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = 1
   `),
 
@@ -104,15 +101,15 @@ const queries = {
   createInvoice: db.prepare(`
     INSERT INTO invoices (
       invoice_number, client_name, client_address, invoice_date,
-      hourly_rate, payment_terms, status, total
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      hourly_rate, status, total
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `),
 
   updateInvoice: db.prepare(`
     UPDATE invoices 
     SET invoice_number = ?, client_name = ?, client_address = ?, 
-        invoice_date = ?, hourly_rate = ?, payment_terms = ?,
-        status = ?, total = ?, updated_at = CURRENT_TIMESTAMP
+        invoice_date = ?, hourly_rate = ?, status = ?, total = ?,
+        updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `),
 
@@ -150,7 +147,6 @@ export const dbOperations = {
       settings.business_name,
       settings.business_address,
       settings.default_hourly_rate,
-      settings.default_payment_terms,
     );
     return this.getSettings();
   },
@@ -202,7 +198,6 @@ export const dbOperations = {
       invoiceFields.client_address || null,
       invoiceFields.invoice_date,
       invoiceFields.hourly_rate,
-      invoiceFields.payment_terms || null,
       invoiceFields.status || "draft",
       invoiceFields.total || 0,
     );
@@ -241,7 +236,6 @@ export const dbOperations = {
       invoiceFields.client_address || null,
       invoiceFields.invoice_date,
       invoiceFields.hourly_rate,
-      invoiceFields.payment_terms || null,
       invoiceFields.status || "draft",
       invoiceFields.total || 0,
       id,

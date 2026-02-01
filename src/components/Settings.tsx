@@ -7,7 +7,6 @@ export default function Settings({ onBack }) {
     business_name: "",
     business_address: "",
     default_hourly_rate: 150,
-    default_payment_terms: "Net 30",
   });
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -126,39 +125,23 @@ export default function Settings({ onBack }) {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Default Invoice Settings
               </h2>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Default Hourly Rate ($)
-                  </label>
-                  <input
-                    type="number"
-                    value={settings.default_hourly_rate}
-                    onChange={(e) =>
-                      handleChange(
-                        "default_hourly_rate",
-                        parseFloat(e.target.value) || 0,
-                      )
-                    }
-                    step="0.01"
-                    min="0"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Default Payment Terms
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.default_payment_terms}
-                    onChange={(e) =>
-                      handleChange("default_payment_terms", e.target.value)
-                    }
-                    placeholder="Net 30"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Default Hourly Rate ($)
+                </label>
+                <input
+                  type="number"
+                  value={settings.default_hourly_rate}
+                  onChange={(e) =>
+                    handleChange(
+                      "default_hourly_rate",
+                      parseFloat(e.target.value) || 0,
+                    )
+                  }
+                  step="0.01"
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
             </div>
           </div>

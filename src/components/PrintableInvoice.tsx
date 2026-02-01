@@ -115,7 +115,7 @@ export default function PrintableInvoice({ invoice, onBack }) {
         </div>
 
         {/* Invoice Details */}
-        <div className="grid grid-cols-3 gap-6 mb-12 pb-8 border-b border-gray-200">
+        <div className="mb-12 pb-8 border-b border-gray-200">
           <div>
             <p className="text-sm font-semibold text-gray-500 uppercase mb-1">
               Invoice Date
@@ -124,14 +124,6 @@ export default function PrintableInvoice({ invoice, onBack }) {
               {formatDate(fullInvoice.invoice_date)}
             </p>
           </div>
-          {fullInvoice.payment_terms && (
-            <div>
-              <p className="text-sm font-semibold text-gray-500 uppercase mb-1">
-                Payment Terms
-              </p>
-              <p className="text-gray-900">{fullInvoice.payment_terms}</p>
-            </div>
-          )}
         </div>
 
         {/* Line Items Table */}

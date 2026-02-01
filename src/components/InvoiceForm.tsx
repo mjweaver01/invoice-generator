@@ -9,7 +9,6 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
     client_address: "",
     invoice_date: new Date().toISOString().split("T")[0],
     hourly_rate: 150.0,
-    payment_terms: "Net 30",
     status: "draft",
     line_items: [{ description: "", hours: "" }],
   });
@@ -44,7 +43,6 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
         setFormData((prev) => ({
           ...prev,
           hourly_rate: settingsData.default_hourly_rate,
-          payment_terms: settingsData.default_payment_terms,
         }));
       }
     } catch (err) {
@@ -263,37 +261,21 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
 
           {/* Hourly Rate */}
           <div className="mb-8">
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Hourly Rate ($)
-                </label>
-                <input
-                  type="number"
-                  value={formData.hourly_rate}
-                  onChange={(e) =>
-                    handleChange("hourly_rate", parseFloat(e.target.value) || 0)
-                  }
-                  step="0.01"
-                  min="0"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Terms
-                </label>
-                <input
-                  type="text"
-                  value={formData.payment_terms}
-                  onChange={(e) =>
-                    handleChange("payment_terms", e.target.value)
-                  }
-                  placeholder="e.g., Net 30"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Hourly Rate ($)
+              </label>
+              <input
+                type="number"
+                value={formData.hourly_rate}
+                onChange={(e) =>
+                  handleChange("hourly_rate", parseFloat(e.target.value) || 0)
+                }
+                step="0.01"
+                min="0"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
           </div>
 
