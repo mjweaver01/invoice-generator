@@ -93,7 +93,11 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
         client_address: client.address || "",
       }));
     } else {
-      setFormData((prev) => ({ ...prev, client_name: clientName }));
+      setFormData((prev) => ({
+        ...prev,
+        client_name: clientName,
+        client_address: "",
+      }));
     }
   };
 
