@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Global button cursor pointer */
+button {
+  cursor: pointer;
+}
+
 @media print {
   /* Hide non-printable elements */
   .no-print {
