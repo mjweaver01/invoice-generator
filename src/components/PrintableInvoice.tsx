@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { api } from '../api';
+import { useEffect, useState } from "react";
+import { api } from "../api";
 
 export default function PrintableInvoice({ invoice, onBack }) {
-  const [fullInvoice, setFullInvoice] = useState(null);
+  const [fullInvoice, setFullInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function PrintableInvoice({ invoice, onBack }) {
       setFullInvoice(data);
       setLoading(false);
     } catch (err) {
-      console.error('Failed to load invoice:', err);
+      console.error("Failed to load invoice:", err);
       setLoading(false);
     }
   };
@@ -25,11 +25,11 @@ export default function PrintableInvoice({ invoice, onBack }) {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -44,8 +44,9 @@ export default function PrintableInvoice({ invoice, onBack }) {
   }
 
   const lineItems = fullInvoice.line_items || [];
+  const settings = fullInvoice.settings || {};
   const subtotal = lineItems.reduce((total, item) => {
-    return total + (item.hours * fullInvoice.hourly_rate);
+    return total + item.hours * fullInvoice.hourly_rate;
   }, 0);
 
   return (
@@ -77,22 +78,37 @@ export default function PrintableInvoice({ invoice, onBack }) {
         {/* From/To Section */}
         <div className="grid grid-cols-2 gap-8 mb-12">
           <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">From</h3>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
+              From
+            </h3>
             <div className="text-gray-900">
-              {fullInvoice.your_business_name && (
-                <p className="font-semibold text-lg mb-1">{fullInvoice.your_business_name}</p>
+              {settings.your_name && (
+                <p className="font-bold text-lg mb-1">{settings.your_name}</p>
               )}
-              {fullInvoice.your_business_address && (
-                <p className="text-gray-600">{fullInvoice.your_business_address}</p>
+              {settings.business_name && (
+                <p className="font-semibold text-base mb-1">
+                  {settings.business_name}
+                </p>
+              )}
+              {settings.business_address && (
+                <p className="text-gray-600 whitespace-pre-line">
+                  {settings.business_address}
+                </p>
               )}
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Bill To</h3>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
+              Bill To
+            </h3>
             <div className="text-gray-900">
-              <p className="font-semibold text-lg mb-1">{fullInvoice.client_name}</p>
+              <p className="font-semibold text-lg mb-1">
+                {fullInvoice.client_name}
+              </p>
               {fullInvoice.client_address && (
-                <p className="text-gray-600">{fullInvoice.client_address}</p>
+                <p className="text-gray-600 whitespace-pre-line">
+                  {fullInvoice.client_address}
+                </p>
               )}
             </div>
           </div>
@@ -101,18 +117,18 @@ export default function PrintableInvoice({ invoice, onBack }) {
         {/* Invoice Details */}
         <div className="grid grid-cols-3 gap-6 mb-12 pb-8 border-b border-gray-200">
           <div>
-            <p className="text-sm font-semibold text-gray-500 uppercase mb-1">Invoice Date</p>
-            <p className="text-gray-900">{formatDate(fullInvoice.invoice_date)}</p>
+            <p className="text-sm font-semibold text-gray-500 uppercase mb-1">
+              Invoice Date
+            </p>
+            <p className="text-gray-900">
+              {formatDate(fullInvoice.invoice_date)}
+            </p>
           </div>
-          {fullInvoice.due_date && (
-            <div>
-              <p className="text-sm font-semibold text-gray-500 uppercase mb-1">Due Date</p>
-              <p className="text-gray-900">{formatDate(fullInvoice.due_date)}</p>
-            </div>
-          )}
           {fullInvoice.payment_terms && (
             <div>
-              <p className="text-sm font-semibold text-gray-500 uppercase mb-1">Payment Terms</p>
+              <p className="text-sm font-semibold text-gray-500 uppercase mb-1">
+                Payment Terms
+              </p>
               <p className="text-gray-900">{fullInvoice.payment_terms}</p>
             </div>
           )}
@@ -122,10 +138,18 @@ export default function PrintableInvoice({ invoice, onBack }) {
         <table className="w-full mb-8">
           <thead>
             <tr className="border-b-2 border-gray-300">
-              <th className="text-left py-3 text-sm font-semibold text-gray-700 uppercase">Description</th>
-              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">Hours</th>
-              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">Rate</th>
-              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">Amount</th>
+              <th className="text-left py-3 text-sm font-semibold text-gray-700 uppercase">
+                Description
+              </th>
+              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
+                Hours
+              </th>
+              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
+                Rate
+              </th>
+              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
+                Amount
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -133,7 +157,9 @@ export default function PrintableInvoice({ invoice, onBack }) {
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-4 text-gray-900">{item.description}</td>
                 <td className="py-4 text-right text-gray-900">{item.hours}</td>
-                <td className="py-4 text-right text-gray-900">${fullInvoice.hourly_rate.toFixed(2)}</td>
+                <td className="py-4 text-right text-gray-900">
+                  ${fullInvoice.hourly_rate.toFixed(2)}
+                </td>
                 <td className="py-4 text-right text-gray-900 font-medium">
                   ${(item.hours * fullInvoice.hourly_rate).toFixed(2)}
                 </td>
@@ -147,11 +173,15 @@ export default function PrintableInvoice({ invoice, onBack }) {
           <div className="w-80">
             <div className="flex justify-between py-3 border-b border-gray-200">
               <span className="text-gray-700">Subtotal</span>
-              <span className="text-gray-900 font-medium">${subtotal.toFixed(2)}</span>
+              <span className="text-gray-900 font-medium">
+                ${subtotal.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between py-4 border-t-2 border-gray-300">
               <span className="text-xl font-bold text-gray-900">Total</span>
-              <span className="text-xl font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+              <span className="text-xl font-bold text-gray-900">
+                ${subtotal.toFixed(2)}
+              </span>
             </div>
           </div>
         </div>

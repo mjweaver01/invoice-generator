@@ -8,17 +8,42 @@ db.run("PRAGMA foreign_keys = ON");
 
 // Create tables
 db.run(`
+  CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    your_name TEXT NOT NULL DEFAULT '',
+    business_name TEXT NOT NULL DEFAULT '',
+    business_address TEXT NOT NULL DEFAULT '',
+    default_hourly_rate REAL NOT NULL DEFAULT 150.0,
+    default_payment_terms TEXT NOT NULL DEFAULT 'Net 30',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+// Insert default settings if not exists
+db.run(`
+  INSERT OR IGNORE INTO settings (id, your_name, business_name, business_address) 
+  VALUES (1, '', '', '')
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    address TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+db.run(`
   CREATE TABLE IF NOT EXISTS invoices (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     invoice_number TEXT UNIQUE NOT NULL,
     client_name TEXT NOT NULL,
     client_address TEXT,
     invoice_date TEXT NOT NULL,
-    due_date TEXT,
     hourly_rate REAL NOT NULL DEFAULT 150.0,
     payment_terms TEXT,
-    your_business_name TEXT,
-    your_business_address TEXT,
     status TEXT DEFAULT 'draft',
     total REAL DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -37,8 +62,34 @@ db.run(`
   )
 `);
 
-// Prepared statements for invoices
+// Prepared statements
 const queries = {
+  // Settings queries
+  getSettings: db.prepare(`SELECT * FROM settings WHERE id = 1`),
+
+  updateSettings: db.prepare(`
+    UPDATE settings 
+    SET your_name = ?, business_name = ?, business_address = ?, 
+        default_hourly_rate = ?, default_payment_terms = ?,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = 1
+  `),
+
+  // Client queries
+  getAllClients: db.prepare(`SELECT * FROM clients ORDER BY name`),
+
+  getClient: db.prepare(`SELECT * FROM clients WHERE id = ?`),
+
+  getClientByName: db.prepare(`SELECT * FROM clients WHERE name = ?`),
+
+  createClient: db.prepare(`
+    INSERT INTO clients (name, address) VALUES (?, ?)
+  `),
+
+  updateClient: db.prepare(`
+    UPDATE clients SET name = ?, address = ? WHERE id = ?
+  `),
+
   // Invoice queries
   getAllInvoices: db.prepare(`
     SELECT * FROM invoices 
@@ -52,18 +103,16 @@ const queries = {
 
   createInvoice: db.prepare(`
     INSERT INTO invoices (
-      invoice_number, client_name, client_address, invoice_date, due_date,
-      hourly_rate, payment_terms, your_business_name, your_business_address,
-      status, total
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      invoice_number, client_name, client_address, invoice_date,
+      hourly_rate, payment_terms, status, total
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `),
 
   updateInvoice: db.prepare(`
     UPDATE invoices 
     SET invoice_number = ?, client_name = ?, client_address = ?, 
-        invoice_date = ?, due_date = ?, hourly_rate = ?, payment_terms = ?,
-        your_business_name = ?, your_business_address = ?, status = ?, total = ?,
-        updated_at = CURRENT_TIMESTAMP
+        invoice_date = ?, hourly_rate = ?, payment_terms = ?,
+        status = ?, total = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `),
 
@@ -90,34 +139,70 @@ const queries = {
 
 // Database operations
 export const dbOperations = {
-  // Get all invoices
+  // Settings operations
+  getSettings() {
+    return queries.getSettings.get();
+  },
+
+  updateSettings(settings) {
+    queries.updateSettings.run(
+      settings.your_name,
+      settings.business_name,
+      settings.business_address,
+      settings.default_hourly_rate,
+      settings.default_payment_terms,
+    );
+    return this.getSettings();
+  },
+
+  // Client operations
+  getAllClients() {
+    return queries.getAllClients.all();
+  },
+
+  getClient(id) {
+    return queries.getClient.get(id);
+  },
+
+  getOrCreateClient(name, address) {
+    let client = queries.getClientByName.get(name);
+    if (!client) {
+      const result = queries.createClient.run(name, address || null);
+      client = this.getClient(result.lastInsertRowid);
+    }
+    return client;
+  },
+
+  // Invoice operations
   getAllInvoices() {
     return queries.getAllInvoices.all();
   },
 
-  // Get single invoice with line items
   getInvoice(id) {
     const invoice = queries.getInvoice.get(id);
     if (!invoice) return null;
 
     const lineItems = queries.getLineItems.all(id);
-    return { ...invoice, line_items: lineItems };
+    const settings = this.getSettings();
+    return { ...invoice, line_items: lineItems, settings };
   },
 
-  // Create invoice with line items
   createInvoice(invoiceData) {
     const { line_items, ...invoiceFields } = invoiceData;
+
+    // Save client for dropdown
+    this.getOrCreateClient(
+      invoiceFields.client_name,
+      invoiceFields.client_address,
+    );
 
     const result = queries.createInvoice.run(
       invoiceFields.invoice_number,
       invoiceFields.client_name,
       invoiceFields.client_address || null,
       invoiceFields.invoice_date,
-      invoiceFields.due_date || null,
       invoiceFields.hourly_rate,
       invoiceFields.payment_terms || null,
-      invoiceFields.your_business_name || null,
-      invoiceFields.your_business_address || null,
       invoiceFields.status || "draft",
       invoiceFields.total || 0,
     );
@@ -141,20 +226,22 @@ export const dbOperations = {
     return this.getInvoice(invoiceId);
   },
 
-  // Update invoice with line items
   updateInvoice(id, invoiceData) {
     const { line_items, ...invoiceFields } = invoiceData;
+
+    // Save client for dropdown
+    this.getOrCreateClient(
+      invoiceFields.client_name,
+      invoiceFields.client_address,
+    );
 
     queries.updateInvoice.run(
       invoiceFields.invoice_number,
       invoiceFields.client_name,
       invoiceFields.client_address || null,
       invoiceFields.invoice_date,
-      invoiceFields.due_date || null,
       invoiceFields.hourly_rate,
       invoiceFields.payment_terms || null,
-      invoiceFields.your_business_name || null,
-      invoiceFields.your_business_address || null,
       invoiceFields.status || "draft",
       invoiceFields.total || 0,
       id,
@@ -179,7 +266,6 @@ export const dbOperations = {
     return this.getInvoice(id);
   },
 
-  // Delete invoice (line items cascade)
   deleteInvoice(id) {
     const result = queries.deleteInvoice.run(id);
     return result.changes > 0;

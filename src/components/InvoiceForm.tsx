@@ -1,46 +1,69 @@
-import { useState, useEffect } from 'react';
-import LineItem from './LineItem';
-import { api } from '../api';
+import { useState, useEffect } from "react";
+import LineItem from "./LineItem";
+import { api } from "../api";
 
 export default function InvoiceForm({ invoice, onSave, onCancel }) {
   const [formData, setFormData] = useState({
-    invoice_number: '',
-    client_name: '',
-    client_address: '',
-    invoice_date: new Date().toISOString().split('T')[0],
-    due_date: '',
+    invoice_number: "",
+    client_name: "",
+    client_address: "",
+    invoice_date: new Date().toISOString().split("T")[0],
     hourly_rate: 150.0,
-    payment_terms: 'Net 30',
-    your_business_name: '',
-    your_business_address: '',
-    status: 'draft',
-    line_items: [{ description: '', hours: '' }],
+    payment_terms: "Net 30",
+    status: "draft",
+    line_items: [{ description: "", hours: "" }],
   });
 
+  const [clients, setClients] = useState<
+    Array<{ id: number; name: string; address: string | null }>
+  >([]);
+  const [settings, setSettings] = useState<any>(null);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    loadClientsAndSettings();
     if (invoice) {
-      // Load existing invoice
       loadInvoice(invoice.id);
     } else {
-      // Generate new invoice number
       generateInvoiceNumber();
     }
   }, [invoice]);
+
+  const loadClientsAndSettings = async () => {
+    try {
+      const [clientsData, settingsData] = await Promise.all([
+        api.getAllClients(),
+        api.getSettings(),
+      ]);
+      setClients(clientsData);
+      setSettings(settingsData);
+
+      // Set defaults from settings for new invoices
+      if (!invoice) {
+        setFormData((prev) => ({
+          ...prev,
+          hourly_rate: settingsData.default_hourly_rate,
+          payment_terms: settingsData.default_payment_terms,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to load clients/settings:", err);
+    }
+  };
 
   const loadInvoice = async (id) => {
     try {
       const data = await api.getInvoice(id);
       setFormData({
         ...data,
-        line_items: data.line_items && data.line_items.length > 0 
-          ? data.line_items 
-          : [{ description: '', hours: '' }],
+        line_items:
+          data.line_items && data.line_items.length > 0
+            ? data.line_items
+            : [{ description: "", hours: "" }],
       });
     } catch (err) {
-      setError('Failed to load invoice');
+      setError("Failed to load invoice");
     }
   };
 
@@ -51,40 +74,53 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
         const match = inv.invoice_number.match(/INV-(\d+)/);
         return match ? Math.max(max, parseInt(match[1])) : max;
       }, 0);
-      const newNumber = `INV-${String(maxNumber + 1).padStart(3, '0')}`;
-      setFormData(prev => ({ ...prev, invoice_number: newNumber }));
+      const newNumber = `INV-${String(maxNumber + 1).padStart(3, "0")}`;
+      setFormData((prev) => ({ ...prev, invoice_number: newNumber }));
     } catch (err) {
-      setFormData(prev => ({ ...prev, invoice_number: 'INV-001' }));
+      setFormData((prev) => ({ ...prev, invoice_number: "INV-001" }));
     }
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleClientSelect = (clientName) => {
+    const client = clients.find((c) => c.name === clientName);
+    if (client) {
+      setFormData((prev) => ({
+        ...prev,
+        client_name: client.name,
+        client_address: client.address || "",
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, client_name: clientName }));
+    }
   };
 
   const handleLineItemChange = (index, item) => {
     const newLineItems = [...formData.line_items];
     newLineItems[index] = item;
-    setFormData(prev => ({ ...prev, line_items: newLineItems }));
+    setFormData((prev) => ({ ...prev, line_items: newLineItems }));
   };
 
   const handleAddLineItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      line_items: [...prev.line_items, { description: '', hours: '' }],
+      line_items: [...prev.line_items, { description: "", hours: "" }],
     }));
   };
 
   const handleRemoveLineItem = (index) => {
     if (formData.line_items.length > 1) {
       const newLineItems = formData.line_items.filter((_, i) => i !== index);
-      setFormData(prev => ({ ...prev, line_items: newLineItems }));
+      setFormData((prev) => ({ ...prev, line_items: newLineItems }));
     }
   };
 
   const calculateTotal = () => {
     return formData.line_items.reduce((total, item) => {
-      return total + ((parseFloat(item.hours) || 0) * formData.hourly_rate);
+      return total + (parseFloat(item.hours) || 0) * formData.hourly_rate;
     }, 0);
   };
 
@@ -111,10 +147,10 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
       } else {
         await api.createInvoice(dataToSave);
       }
-      
+
       onSave(dataToSave);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "An error occurred");
       setSaving(false);
     }
   };
@@ -124,7 +160,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
       <div className="bg-white rounded-xl shadow-sm p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            {invoice ? 'Edit Invoice' : 'New Invoice'}
+            {invoice ? "Edit Invoice" : "New Invoice"}
           </h1>
           <button
             onClick={onCancel}
@@ -142,7 +178,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
 
         <form onSubmit={handleSubmit}>
           {/* Invoice Details */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-3 gap-6 mb-8">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Invoice Number
@@ -150,7 +186,19 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
               <input
                 type="text"
                 value={formData.invoice_number}
-                onChange={(e) => handleChange('invoice_number', e.target.value)}
+                onChange={(e) => handleChange("invoice_number", e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Invoice Date
+              </label>
+              <input
+                type="date"
+                value={formData.invoice_date}
+                onChange={(e) => handleChange("invoice_date", e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -161,7 +209,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => handleChange('status', e.target.value)}
+                onChange={(e) => handleChange("status", e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="draft">Draft</option>
@@ -169,63 +217,13 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 <option value="paid">Paid</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Invoice Date
-              </label>
-              <input
-                type="date"
-                value={formData.invoice_date}
-                onChange={(e) => handleChange('invoice_date', e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Due Date
-              </label>
-              <input
-                type="date"
-                value={formData.due_date}
-                onChange={(e) => handleChange('due_date', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Business Info */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Business Information</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.your_business_name}
-                  onChange={(e) => handleChange('your_business_name', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Address
-                </label>
-                <input
-                  type="text"
-                  value={formData.your_business_address}
-                  onChange={(e) => handleChange('your_business_address', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
           </div>
 
           {/* Client Info */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Client Information</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Client Information
+            </h2>
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -233,11 +231,18 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 </label>
                 <input
                   type="text"
+                  list="clients-list"
                   value={formData.client_name}
-                  onChange={(e) => handleChange('client_name', e.target.value)}
+                  onChange={(e) => handleClientSelect(e.target.value)}
                   required
+                  placeholder="Select or enter client name"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                <datalist id="clients-list">
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.name} />
+                  ))}
+                </datalist>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -246,7 +251,10 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 <input
                   type="text"
                   value={formData.client_address}
-                  onChange={(e) => handleChange('client_address', e.target.value)}
+                  onChange={(e) =>
+                    handleChange("client_address", e.target.value)
+                  }
+                  placeholder="Optional"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -263,7 +271,9 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 <input
                   type="number"
                   value={formData.hourly_rate}
-                  onChange={(e) => handleChange('hourly_rate', parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleChange("hourly_rate", parseFloat(e.target.value) || 0)
+                  }
                   step="0.01"
                   min="0"
                   required
@@ -277,7 +287,9 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
                 <input
                   type="text"
                   value={formData.payment_terms}
-                  onChange={(e) => handleChange('payment_terms', e.target.value)}
+                  onChange={(e) =>
+                    handleChange("payment_terms", e.target.value)
+                  }
                   placeholder="e.g., Net 30"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -288,7 +300,9 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
           {/* Line Items */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Line Items</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Line Items
+              </h2>
               <button
                 type="button"
                 onClick={handleAddLineItem}
@@ -323,11 +337,15 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
               <div className="w-96">
                 <div className="flex justify-between mb-3 text-gray-700">
                   <span>Total Hours:</span>
-                  <span className="font-semibold">{calculateTotalHours().toFixed(2)}</span>
+                  <span className="font-semibold">
+                    {calculateTotalHours().toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between mb-3 text-gray-700">
                   <span>Hourly Rate:</span>
-                  <span className="font-semibold">${formData.hourly_rate.toFixed(2)}</span>
+                  <span className="font-semibold">
+                    ${formData.hourly_rate.toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-2xl font-bold text-gray-900 pt-3 border-t border-gray-300">
                   <span>Total:</span>
@@ -351,7 +369,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
               disabled={saving}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
             >
-              {saving ? 'Saving...' : 'Save Invoice'}
+              {saving ? "Saving..." : "Save Invoice"}
             </button>
           </div>
         </form>

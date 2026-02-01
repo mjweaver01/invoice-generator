@@ -1,30 +1,43 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-export default function InvoiceList({ invoices, onNewInvoice, onEditInvoice, onPrintInvoice, onRefresh }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+export default function InvoiceList({
+  invoices,
+  onNewInvoice,
+  onEditInvoice,
+  onPrintInvoice,
+  onShowSettings,
+  onRefresh,
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = invoice.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
+  const filteredInvoices = invoices.filter((invoice) => {
+    const matchesSearch =
+      invoice.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'sent': return 'bg-blue-100 text-blue-800';
-      case 'paid': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "draft":
+        return "bg-gray-100 text-gray-800";
+      case "sent":
+        return "bg-blue-100 text-blue-800";
+      case "paid":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -33,12 +46,20 @@ export default function InvoiceList({ invoices, onNewInvoice, onEditInvoice, onP
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
-          <button
-            onClick={onNewInvoice}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
-          >
-            + New Invoice
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={onShowSettings}
+              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+            >
+              ⚙️ Settings
+            </button>
+            <button
+              onClick={onNewInvoice}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+            >
+              + New Invoice
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-4 mb-6">
@@ -85,19 +106,25 @@ export default function InvoiceList({ invoices, onNewInvoice, onEditInvoice, onP
                     <h3 className="text-xl font-semibold text-gray-900">
                       {invoice.invoice_number}
                     </h3>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)}`}
+                    >
                       {invoice.status}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-lg mb-1">{invoice.client_name}</p>
+                  <p className="text-gray-600 text-lg mb-1">
+                    {invoice.client_name}
+                  </p>
                   <div className="flex gap-4 text-sm text-gray-500">
                     <span>Date: {formatDate(invoice.invoice_date)}</span>
-                    {invoice.due_date && <span>Due: {formatDate(invoice.due_date)}</span>}
+                    {invoice.due_date && (
+                      <span>Due: {formatDate(invoice.due_date)}</span>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-gray-900 mb-3">
-                    ${invoice.total?.toFixed(2) || '0.00'}
+                    ${invoice.total?.toFixed(2) || "0.00"}
                   </div>
                   <div className="flex gap-2">
                     <button
