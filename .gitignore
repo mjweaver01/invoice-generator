@@ -1,0 +1,7 @@
+node_modules/
+*.db
+*.db-journal
+public/*.js
+public/*.css
+public/*.map
+.DS_Store

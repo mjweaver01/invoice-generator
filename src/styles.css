@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@media print {
+  /* Hide non-printable elements */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Optimize page for printing */
+  @page {
+    margin: 0.5in;
+  }
+  
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  /* Ensure invoice fits on one page */
+  .printable-invoice {
+    page-break-inside: avoid;
+    width: 100%;
+    max-width: 8.5in;
+    margin: 0 auto;
+  }
+  
+  /* Remove backgrounds and shadows for print */
+  * {
+    background: white !important;
+    box-shadow: none !important;
+  }
+  
+  /* Keep borders and text colors */
+  table, th, td {
+    border-color: #000 !important;
+  }
+  
+  /* Ensure text is readable */
+  body, p, div, span {
+    color: #000 !important;
+  }
+}
