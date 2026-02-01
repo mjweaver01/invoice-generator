@@ -188,7 +188,7 @@ export default function PrintableInvoice({ invoice, onBack }) {
 
         {/* Footer */}
         <div className="pt-8 border-t border-gray-200 text-center text-gray-600 text-sm">
-          <p>Thank you for your business!</p>
+          <p>Thank you for your business! -Mike</p>
         </div>
       </div>
     </div>

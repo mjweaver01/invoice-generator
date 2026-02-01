@@ -1,4 +1,10 @@
-export default function LineItem({ item, index, onChange, onRemove, hourlyRate }) {
+export default function LineItem({
+  item,
+  index,
+  onChange,
+  onRemove,
+  hourlyRate,
+}) {
   const handleChange = (field, value) => {
     onChange(index, { ...item, [field]: value });
   };
@@ -12,7 +18,7 @@ export default function LineItem({ item, index, onChange, onRemove, hourlyRate }
           type="text"
           placeholder="Description of work"
           value={item.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          onChange={(e) => handleChange("description", e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
@@ -21,7 +27,7 @@ export default function LineItem({ item, index, onChange, onRemove, hourlyRate }
           type="number"
           placeholder="Hours"
           value={item.hours}
-          onChange={(e) => handleChange('hours', e.target.value)}
+          onChange={(e) => handleChange("hours", e.target.value)}
           step="0.25"
           min="0"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
