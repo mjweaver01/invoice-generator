@@ -5,7 +5,7 @@ A modern invoice generation application built with Bun v1.3, React, Tailwind CSS
 ## Features
 
 - ✨ Create and manage invoices with line items
-- 💰 Automatic total calculation based on hourly rate (default: $150/hr)
+- 💰 Automatic total calculation based on hourly rate
 - ⚙️ Global settings for your name, business info, and defaults
 - 👥 Client dropdown with autocomplete (remembers past clients)
 - 🗄️ SQLite database for persistent storage
@@ -19,7 +19,7 @@ A modern invoice generation application built with Bun v1.3, React, Tailwind CSS
 - **Runtime:** Bun v1.3
 - **Frontend:** React 18 + Tailwind CSS v4
 - **Database:** Native `bun:sqlite` (no dependencies)
-- **PDF Generation:** Browser native print (`window.print()`)
+- **PDF Generation:** Browser native print with React-to-Print
 - **TypeScript:** Native TypeScript support via Bun
 
 ## Getting Started
