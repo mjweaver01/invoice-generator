@@ -6,6 +6,7 @@ export default function LineItem({
   onChange,
   onRemove,
   hourlyRate,
+  disabled = false,
 }) {
   const handleChange = (field, value) => {
     onChange(index, { ...item, [field]: value });
@@ -21,7 +22,8 @@ export default function LineItem({
           placeholder="Description of work"
           value={item.description}
           onChange={(e) => handleChange("description", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          disabled={disabled}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
         />
       </div>
       <div className="col-span-2">
@@ -32,7 +34,8 @@ export default function LineItem({
           onChange={(e) => handleChange("hours", e.target.value)}
           step="0.25"
           min="0"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          disabled={disabled}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
         />
       </div>
       <div className="col-span-3">
@@ -44,7 +47,8 @@ export default function LineItem({
         <button
           type="button"
           onClick={() => onRemove(index)}
-          className="text-red-600 hover:text-red-800 font-bold text-xl"
+          disabled={disabled}
+          className="text-red-600 hover:text-red-800 font-bold text-xl disabled:opacity-50 disabled:cursor-not-allowed"
           title="Remove line item"
         >
           ×

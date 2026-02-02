@@ -10,6 +10,7 @@ export default function Settings() {
     business_address: "",
     default_hourly_rate: 150,
   });
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -19,10 +20,13 @@ export default function Settings() {
 
   const loadSettings = async () => {
     try {
+      setLoading(true);
       const data = await api.getSettings();
       setSettings(data);
     } catch (err) {
       console.error("Failed to load settings:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,7 +83,8 @@ export default function Settings() {
                   value={settings.your_name}
                   onChange={(e) => handleChange("your_name", e.target.value)}
                   placeholder="John Doe"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={loading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   This will appear on your invoices
@@ -103,7 +108,8 @@ export default function Settings() {
                       handleChange("business_name", e.target.value)
                     }
                     placeholder="My Consulting LLC"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                   />
                 </div>
                 <div>
@@ -117,7 +123,8 @@ export default function Settings() {
                     }
                     placeholder="123 Main St, Suite 100&#10;New York, NY 10001"
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                   />
                 </div>
               </div>
@@ -142,7 +149,8 @@ export default function Settings() {
                   }
                   step="0.01"
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={loading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -152,16 +160,17 @@ export default function Settings() {
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={loading}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={saving}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              disabled={saving || loading}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saving ? "Saving..." : "Save Settings"}
+              {saving ? "Saving..." : loading ? "Loading..." : "Save Settings"}
             </button>
           </div>
         </form>

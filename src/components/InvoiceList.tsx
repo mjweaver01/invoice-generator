@@ -6,6 +6,7 @@ import type { Invoice } from "../types";
 export default function InvoiceList() {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(null);
@@ -28,11 +29,14 @@ export default function InvoiceList() {
 
   const loadInvoices = async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/invoices");
       const data = await response.json();
       setInvoices(data);
     } catch (error) {
       console.error("Failed to load invoices:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,7 +135,7 @@ export default function InvoiceList() {
             placeholder="Search by client or invoice number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
           />
           <select
             value={statusFilter}
@@ -147,7 +151,14 @@ export default function InvoiceList() {
       </div>
 
       <div className="space-y-3">
-        {filteredInvoices.length === 0 ? (
+        {loading ? (
+          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+              <p className="text-gray-500 text-lg">Loading invoices...</p>
+            </div>
+          </div>
+        ) : filteredInvoices.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <p className="text-gray-500 text-lg">No invoices found</p>
             <button

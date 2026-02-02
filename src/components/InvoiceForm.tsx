@@ -21,16 +21,22 @@ export default function InvoiceForm() {
     Array<{ id: number; name: string; address: string | null }>
   >([]);
   const [settings, setSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadClientsAndSettings();
-    if (id) {
-      loadInvoice(id);
-    } else {
-      generateInvoiceNumber();
-    }
+    const loadData = async () => {
+      setLoading(true);
+      await loadClientsAndSettings();
+      if (id) {
+        await loadInvoice(id);
+      } else {
+        await generateInvoiceNumber();
+      }
+      setLoading(false);
+    };
+    loadData();
   }, [id]);
 
   const loadClientsAndSettings = async () => {
@@ -194,7 +200,8 @@ export default function InvoiceForm() {
                 value={formData.invoice_number}
                 onChange={(e) => handleChange("invoice_number", e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -206,7 +213,8 @@ export default function InvoiceForm() {
                 value={formData.invoice_date}
                 onChange={(e) => handleChange("invoice_date", e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -216,7 +224,8 @@ export default function InvoiceForm() {
               <select
                 value={formData.status}
                 onChange={(e) => handleChange("status", e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="draft">Draft</option>
                 <option value="sent">Sent</option>
@@ -241,8 +250,9 @@ export default function InvoiceForm() {
                   value={formData.client_name}
                   onChange={(e) => handleClientSelect(e.target.value)}
                   required
+                  disabled={loading}
                   placeholder="Select or enter client name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                 />
                 <datalist id="clients-list">
                   {clients.map((client) => (
@@ -261,7 +271,8 @@ export default function InvoiceForm() {
                   }
                   placeholder="Enter business address"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
+                  disabled={loading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                 />
               </div>
             </div>
@@ -282,7 +293,8 @@ export default function InvoiceForm() {
                 step="0.01"
                 min="0"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -296,7 +308,8 @@ export default function InvoiceForm() {
               <button
                 type="button"
                 onClick={handleAddLineItem}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 + Add Line Item
               </button>
@@ -317,6 +330,7 @@ export default function InvoiceForm() {
                 hourlyRate={formData.hourly_rate}
                 onChange={handleLineItemChange}
                 onRemove={handleRemoveLineItem}
+                disabled={loading}
               />
             ))}
           </div>
@@ -350,16 +364,17 @@ export default function InvoiceForm() {
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={loading}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={saving}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              disabled={saving || loading}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saving ? "Saving..." : "Save Invoice"}
+              {saving ? "Saving..." : loading ? "Loading..." : "Save Invoice"}
             </button>
           </div>
         </form>
