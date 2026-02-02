@@ -52,6 +52,25 @@ export default function App() {
     setCurrentInvoice(null);
   };
 
+  const handleUpdateStatus = async (invoiceId, newStatus) => {
+    try {
+      const invoice = invoices.find((inv) => inv.id === invoiceId);
+      if (!invoice) return;
+
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...invoice, status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update status");
+
+      await loadInvoices();
+    } catch (error) {
+      console.error("Failed to update invoice status:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {view === "list" && (
@@ -62,6 +81,7 @@ export default function App() {
           onPrintInvoice={handlePrintInvoice}
           onShowSettings={handleShowSettings}
           onRefresh={loadInvoices}
+          onUpdateStatus={handleUpdateStatus}
         />
       )}
       {view === "form" && (

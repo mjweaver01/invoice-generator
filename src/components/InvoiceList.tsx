@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { formatCurrency } from "../utils";
 
 export default function InvoiceList({
@@ -8,9 +8,23 @@ export default function InvoiceList({
   onPrintInvoice,
   onShowSettings,
   onRefresh,
+  onUpdateStatus,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [openStatusDropdown, setOpenStatusDropdown] = useState(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenStatusDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
@@ -41,6 +55,17 @@ export default function InvoiceList({
       day: "numeric",
     });
   };
+
+  const handleStatusChange = (invoiceId, newStatus) => {
+    onUpdateStatus(invoiceId, newStatus);
+    setOpenStatusDropdown(null);
+  };
+
+  const statusOptions = [
+    { value: "draft", label: "Draft" },
+    { value: "sent", label: "Sent" },
+    { value: "paid", label: "Paid" },
+  ];
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -121,11 +146,49 @@ export default function InvoiceList({
                     <h3 className="text-xl font-semibold text-gray-900">
                       {invoice.invoice_number}
                     </h3>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)}`}
-                    >
-                      {invoice.status}
-                    </span>
+                    <div className="relative" ref={openStatusDropdown === invoice.id ? dropdownRef : null}>
+                      <button
+                        onClick={() =>
+                          setOpenStatusDropdown(
+                            openStatusDropdown === invoice.id ? null : invoice.id
+                          )
+                        }
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)} hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1`}
+                      >
+                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                      {openStatusDropdown === invoice.id && (
+                        <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
+                          {statusOptions.map((status) => (
+                            <button
+                              key={status.value}
+                              onClick={() =>
+                                handleStatusChange(invoice.id, status.value)
+                              }
+                              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                                invoice.status === status.value
+                                  ? "bg-gray-50 font-medium"
+                                  : ""
+                              }`}
+                            >
+                              {status.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <p className="text-gray-600 text-lg mb-1">
                     {invoice.client_name}
