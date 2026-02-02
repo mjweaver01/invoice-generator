@@ -4,5 +4,5 @@ export const formatCurrency = (amount: number): string => {
     currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(amount).replace(".00", "");
 };
