@@ -24,8 +24,18 @@ const server = Bun.serve({
     "/print/:id": indexPageHtml,
     "/settings": indexPageHtml,
     "/clients": indexPageHtml,
+    "/login": indexPageHtml,
 
     // API routes
+    "/api/auth/signup": {
+      POST: async (req) => handleApiRoutes(req, new URL(req.url)),
+    },
+    "/api/auth/login": {
+      POST: async (req) => handleApiRoutes(req, new URL(req.url)),
+    },
+    "/api/auth/me": {
+      GET: async (req) => handleApiRoutes(req, new URL(req.url)),
+    },
     "/api/settings": {
       GET: async (req) => handleApiRoutes(req, new URL(req.url)),
       PUT: async (req) => handleApiRoutes(req, new URL(req.url)),

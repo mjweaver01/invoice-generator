@@ -104,7 +104,7 @@ export default function Clients() {
               onClick={() => navigate("/new")}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             >
-              Create First Invoice
+              Create your first invoice
             </button>
           </div>
         ) : (

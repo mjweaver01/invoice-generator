@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import type { Invoice } from "../types";
 import { formatCurrency, formatDate } from "../utils";
 import { StatusPill } from "../components/StatusPill";
+import { api } from "../api";
 
-export default function InvoiceList() {
+export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,8 +36,7 @@ export default function InvoiceList() {
   const loadInvoices = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/invoices");
-      const data = await response.json();
+      const data = await api.getAllInvoices();
       setInvoices(data);
     } catch (error) {
       console.error("Failed to load invoices:", error);
@@ -65,14 +65,7 @@ export default function InvoiceList() {
       const invoice = invoices.find((inv) => inv.id === invoiceId);
       if (!invoice) return;
 
-      const response = await fetch(`/api/invoices/${invoiceId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...invoice, status: newStatus }),
-      });
-
-      if (!response.ok) throw new Error("Failed to update status");
-
+      await api.updateInvoice(invoiceId, { ...invoice, status: newStatus });
       await loadInvoices();
     } catch (error) {
       console.error("Failed to update invoice status:", error);
@@ -82,10 +75,7 @@ export default function InvoiceList() {
 
   const handleDeleteInvoice = async (invoiceId: number) => {
     try {
-      const response = await fetch(`/api/invoices/${invoiceId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete invoice");
+      await api.deleteInvoice(invoiceId);
       await loadInvoices();
     } catch (error) {
       console.error("Failed to delete invoice:", error);
@@ -99,6 +89,25 @@ export default function InvoiceList() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
           <div className="flex gap-3">
+            <button
+              onClick={onLogout}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              title="Logout"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Logout
+            </button>
             <button
               onClick={() => navigate("/settings")}
               className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
@@ -183,10 +192,10 @@ export default function InvoiceList() {
           </div>
         ) : filteredInvoices.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-            <p className="text-gray-500 text-lg">No invoices found</p>
+            <p className="text-gray-500 mb-4">No invoices found</p>
             <button
               onClick={() => navigate("/new")}
-              className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             >
               {invoices?.length === 0
                 ? "Create your first invoice"

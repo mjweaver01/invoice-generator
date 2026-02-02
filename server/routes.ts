@@ -1,4 +1,10 @@
 import { dbOperations } from "./db";
+import {
+  authenticateRequest,
+  hashPassword,
+  verifyPassword,
+  generateToken,
+} from "./auth";
 
 export async function handleApiRoutes(req, url) {
   const path = url.pathname;
@@ -9,7 +15,7 @@ export async function handleApiRoutes(req, url) {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
   // Handle OPTIONS for CORS
@@ -18,6 +24,120 @@ export async function handleApiRoutes(req, url) {
   }
 
   try {
+    // Auth routes (public)
+    // POST /api/auth/signup - Register new user
+    if (path === "/api/auth/signup" && method === "POST") {
+      const body = await req.json();
+      const { username, password } = body;
+
+      if (!username || !password) {
+        return new Response(
+          JSON.stringify({ error: "Username and password are required" }),
+          { status: 400, headers },
+        );
+      }
+
+      if (password.length < 6) {
+        return new Response(
+          JSON.stringify({ error: "Password must be at least 6 characters" }),
+          { status: 400, headers },
+        );
+      }
+
+      // Check if user already exists
+      const existingUser = dbOperations.getUserByUsername(username);
+      if (existingUser) {
+        return new Response(
+          JSON.stringify({ error: "Username already exists" }),
+          { status: 409, headers },
+        );
+      }
+
+      // Create user
+      const passwordHash = await hashPassword(password);
+      const user = dbOperations.createUser(username, passwordHash);
+
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: "Failed to create user" }),
+          { status: 500, headers },
+        );
+      }
+
+      // Generate token
+      const token = generateToken({ userId: user.id, username: user.username });
+
+      return new Response(
+        JSON.stringify({
+          token,
+          user: { id: user.id, username: user.username },
+        }),
+        { status: 201, headers },
+      );
+    }
+
+    // POST /api/auth/login - Login
+    if (path === "/api/auth/login" && method === "POST") {
+      const body = await req.json();
+      const { username, password } = body;
+
+      if (!username || !password) {
+        return new Response(
+          JSON.stringify({ error: "Username and password are required" }),
+          { status: 400, headers },
+        );
+      }
+
+      // Find user
+      const user = dbOperations.getUserByUsername(username);
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: "Invalid username or password" }),
+          { status: 401, headers },
+        );
+      }
+
+      // Verify password
+      const isValid = await verifyPassword(password, user.password_hash);
+      if (!isValid) {
+        return new Response(
+          JSON.stringify({ error: "Invalid username or password" }),
+          { status: 401, headers },
+        );
+      }
+
+      // Generate token
+      const token = generateToken({ userId: user.id, username: user.username });
+
+      return new Response(
+        JSON.stringify({
+          token,
+          user: { id: user.id, username: user.username },
+        }),
+        { headers },
+      );
+    }
+
+    // GET /api/auth/me - Get current user
+    if (path === "/api/auth/me" && method === "GET") {
+      const authPayload = await authenticateRequest(req);
+      const user = dbOperations.getUserById(authPayload.userId);
+
+      if (!user) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      return new Response(
+        JSON.stringify({ id: user.id, username: user.username }),
+        { headers },
+      );
+    }
+
+    // All routes below require authentication
+    const auth = await authenticateRequest(req);
     // GET /api/settings - Get settings
     if (path === "/api/settings" && method === "GET") {
       const settings = dbOperations.getSettings();
@@ -33,15 +153,15 @@ export async function handleApiRoutes(req, url) {
 
     // GET /api/clients - Get all clients
     if (path === "/api/clients" && method === "GET") {
-      const clients = dbOperations.getAllClients();
+      const clients = dbOperations.getAllClients(auth.userId);
       return new Response(JSON.stringify(clients), { headers });
     }
 
     // PUT /api/clients/:id - Update client
     if (path.match(/^\/api\/clients\/\d+$/) && method === "PUT") {
-      const id = parseInt(path.split("/").pop());
+      const id = parseInt(path.split("/").pop()!);
       const body = await req.json();
-      const client = dbOperations.updateClient(id, body);
+      const client = dbOperations.updateClient(id, body, auth.userId);
 
       if (!client) {
         return new Response(JSON.stringify({ error: "Client not found" }), {
@@ -55,8 +175,8 @@ export async function handleApiRoutes(req, url) {
 
     // DELETE /api/clients/:id - Delete client
     if (path.match(/^\/api\/clients\/\d+$/) && method === "DELETE") {
-      const id = parseInt(path.split("/").pop());
-      const deleted = dbOperations.deleteClient(id);
+      const id = parseInt(path.split("/").pop()!);
+      const deleted = dbOperations.deleteClient(id, auth.userId);
 
       if (!deleted) {
         return new Response(JSON.stringify({ error: "Client not found" }), {
@@ -70,14 +190,14 @@ export async function handleApiRoutes(req, url) {
 
     // GET /api/invoices - Get all invoices
     if (path === "/api/invoices" && method === "GET") {
-      const invoices = dbOperations.getAllInvoices();
+      const invoices = dbOperations.getAllInvoices(auth.userId);
       return new Response(JSON.stringify(invoices), { headers });
     }
 
     // GET /api/invoices/:id - Get single invoice
     if (path.match(/^\/api\/invoices\/\d+$/) && method === "GET") {
-      const id = parseInt(path.split("/").pop());
-      const invoice = dbOperations.getInvoice(id);
+      const id = parseInt(path.split("/").pop()!);
+      const invoice = dbOperations.getInvoice(id, auth.userId);
 
       if (!invoice) {
         return new Response(JSON.stringify({ error: "Invoice not found" }), {
@@ -92,7 +212,7 @@ export async function handleApiRoutes(req, url) {
     // POST /api/invoices - Create new invoice
     if (path === "/api/invoices" && method === "POST") {
       const body = await req.json();
-      const invoice = dbOperations.createInvoice(body);
+      const invoice = dbOperations.createInvoice(body, auth.userId);
       return new Response(JSON.stringify(invoice), {
         status: 201,
         headers,
@@ -101,9 +221,9 @@ export async function handleApiRoutes(req, url) {
 
     // PUT /api/invoices/:id - Update invoice
     if (path.match(/^\/api\/invoices\/\d+$/) && method === "PUT") {
-      const id = parseInt(path.split("/").pop());
+      const id = parseInt(path.split("/").pop()!);
       const body = await req.json();
-      const invoice = dbOperations.updateInvoice(id, body);
+      const invoice = dbOperations.updateInvoice(id, body, auth.userId);
 
       if (!invoice) {
         return new Response(JSON.stringify({ error: "Invoice not found" }), {
@@ -117,8 +237,8 @@ export async function handleApiRoutes(req, url) {
 
     // DELETE /api/invoices/:id - Delete invoice
     if (path.match(/^\/api\/invoices\/\d+$/) && method === "DELETE") {
-      const id = parseInt(path.split("/").pop());
-      const deleted = dbOperations.deleteInvoice(id);
+      const id = parseInt(path.split("/").pop()!);
+      const deleted = dbOperations.deleteInvoice(id, auth.userId);
 
       if (!deleted) {
         return new Response(JSON.stringify({ error: "Invoice not found" }), {
@@ -137,7 +257,17 @@ export async function handleApiRoutes(req, url) {
     });
   } catch (error) {
     console.error("API Error:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    const message = (error as Error).message;
+
+    // Handle authentication errors
+    if (message.includes("token") || message.includes("User not found")) {
+      return new Response(JSON.stringify({ error: message }), {
+        status: 401,
+        headers,
+      });
+    }
+
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers,
     });

@@ -41,3 +41,13 @@ export interface Settings {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface User {
+  id: number;
+  username: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
