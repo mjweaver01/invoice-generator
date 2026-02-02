@@ -17,6 +17,7 @@ export default function Clients() {
     null,
   );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [savingClientId, setSavingClientId] = useState<number | null>(null);
 
   useEffect(() => {
     loadClients();
@@ -47,7 +48,8 @@ export default function Clients() {
     setEditClientData({ name: "", address: "" });
   };
 
-  const handleSaveClient = async (id) => {
+  const handleSaveClient = async (id: number) => {
+    setSavingClientId(id);
     try {
       await api.updateClient(id, editClientData);
       setClients(
@@ -58,6 +60,8 @@ export default function Clients() {
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("Failed to update client:", err);
+    } finally {
+      setSavingClientId(null);
     }
   };
 
@@ -75,7 +79,7 @@ export default function Clients() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-sm p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
@@ -153,9 +157,17 @@ export default function Clients() {
                       <button
                         type="button"
                         onClick={() => handleSaveClient(client.id)}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        disabled={savingClientId === client.id}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 min-w-[100px] justify-center disabled:opacity-80 disabled:cursor-wait"
                       >
-                        Save
+                        {savingClientId === client.id ? (
+                          <>
+                            <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                            Saving…
+                          </>
+                        ) : (
+                          "Save"
+                        )}
                       </button>
                       <button
                         type="button"
