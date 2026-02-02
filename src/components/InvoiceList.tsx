@@ -1,19 +1,19 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../utils";
+import type { Invoice } from "../types";
 
-export default function InvoiceList({
-  invoices,
-  onNewInvoice,
-  onEditInvoice,
-  onPrintInvoice,
-  onShowSettings,
-  onRefresh,
-  onUpdateStatus,
-}) {
+export default function InvoiceList() {
+  const navigate = useNavigate();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [openStatusDropdown, setOpenStatusDropdown] = useState(null);
+  const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadInvoices();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -25,6 +25,16 @@ export default function InvoiceList({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const loadInvoices = async () => {
+    try {
+      const response = await fetch("/api/invoices");
+      const data = await response.json();
+      setInvoices(data);
+    } catch (error) {
+      console.error("Failed to load invoices:", error);
+    }
+  };
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
@@ -56,8 +66,23 @@ export default function InvoiceList({
     });
   };
 
-  const handleStatusChange = (invoiceId, newStatus) => {
-    onUpdateStatus(invoiceId, newStatus);
+  const handleStatusChange = async (invoiceId, newStatus) => {
+    try {
+      const invoice = invoices.find((inv) => inv.id === invoiceId);
+      if (!invoice) return;
+
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...invoice, status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update status");
+
+      await loadInvoices();
+    } catch (error) {
+      console.error("Failed to update invoice status:", error);
+    }
     setOpenStatusDropdown(null);
   };
 
@@ -74,7 +99,7 @@ export default function InvoiceList({
           <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
           <div className="flex gap-3">
             <button
-              onClick={onShowSettings}
+              onClick={() => navigate("/settings")}
               className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
             >
               <svg
@@ -92,7 +117,7 @@ export default function InvoiceList({
               Settings
             </button>
             <button
-              onClick={onNewInvoice}
+              onClick={() => navigate("/new")}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
             >
               + New Invoice
@@ -126,7 +151,7 @@ export default function InvoiceList({
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <p className="text-gray-500 text-lg">No invoices found</p>
             <button
-              onClick={onNewInvoice}
+              onClick={() => navigate("/new")}
               className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
             >
               {invoices?.length === 0
@@ -206,13 +231,13 @@ export default function InvoiceList({
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => onEditInvoice(invoice)}
+                      onClick={() => navigate(`/edit/${invoice.id}`)}
                       className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => onPrintInvoice(invoice)}
+                      onClick={() => navigate(`/print/${invoice.id}`)}
                       className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
                     >
                       Print

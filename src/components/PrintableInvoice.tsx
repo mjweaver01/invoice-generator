@@ -1,20 +1,25 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { api } from "../api";
 import { formatCurrency } from "../utils";
 
-export default function PrintableInvoice({ invoice, onBack }) {
+export default function PrintableInvoice() {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [fullInvoice, setFullInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const invoiceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadFullInvoice();
-  }, [invoice]);
+    if (id) {
+      loadFullInvoice();
+    }
+  }, [id]);
 
   const loadFullInvoice = async () => {
     try {
-      const data = await api.getInvoice(invoice.id);
+      const data = await api.getInvoice(id!);
       setFullInvoice(data);
       setLoading(false);
     } catch (err) {
@@ -58,7 +63,7 @@ export default function PrintableInvoice({ invoice, onBack }) {
       {/* Print Actions - Hidden when printing */}
       <div className="no-print mb-6 flex justify-between items-center">
         <button
-          onClick={onBack}
+          onClick={() => navigate("/")}
           className="text-gray-600 hover:text-gray-800 font-medium"
         >
           ← Back to List

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 
-export default function Settings({ onBack }) {
+export default function Settings() {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({
     your_name: "",
     business_name: "",
@@ -49,7 +51,7 @@ export default function Settings({ onBack }) {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
           <button
-            onClick={onBack}
+            onClick={() => navigate("/")}
             className="text-gray-600 hover:text-gray-800"
           >
             ← Back to Invoices
@@ -149,7 +151,7 @@ export default function Settings({ onBack }) {
           <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
             <button
               type="button"
-              onClick={onBack}
+              onClick={() => navigate("/")}
               className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel

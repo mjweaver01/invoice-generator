@@ -17,8 +17,11 @@ const server = Bun.serve({
   port,
   hostname,
   routes: {
-    // Frontend routes - serve index.html for client-side routing
+    // SPA routes - serve index.html for client-side routing
     "/": indexPageHtml,
+    "/new": indexPageHtml,
+    "/edit/:id": indexPageHtml,
+    "/print/:id": indexPageHtml,
     "/settings": indexPageHtml,
 
     // API routes

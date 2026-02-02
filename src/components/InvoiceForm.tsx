@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import LineItem from "./LineItem";
 import { api } from "../api";
 import { formatCurrency } from "../utils";
 
-export default function InvoiceForm({ invoice, onSave, onCancel }) {
+export default function InvoiceForm() {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     invoice_number: "",
     client_name: "",
@@ -23,12 +26,12 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
 
   useEffect(() => {
     loadClientsAndSettings();
-    if (invoice) {
-      loadInvoice(invoice.id);
+    if (id) {
+      loadInvoice(id);
     } else {
       generateInvoiceNumber();
     }
-  }, [invoice]);
+  }, [id]);
 
   const loadClientsAndSettings = async () => {
     try {
@@ -40,7 +43,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
       setSettings(settingsData);
 
       // Set defaults from settings for new invoices
-      if (!invoice) {
+      if (!id) {
         setFormData((prev) => ({
           ...prev,
           hourly_rate: settingsData.default_hourly_rate,
@@ -145,13 +148,13 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
         total,
       };
 
-      if (invoice) {
-        await api.updateInvoice(invoice.id, dataToSave);
+      if (id) {
+        await api.updateInvoice(id, dataToSave);
       } else {
         await api.createInvoice(dataToSave);
       }
 
-      onSave(dataToSave);
+      navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setSaving(false);
@@ -163,10 +166,10 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
       <div className="bg-white rounded-xl shadow-sm p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            {invoice ? "Edit Invoice" : "New Invoice"}
+            {id ? "Edit Invoice" : "New Invoice"}
           </h1>
           <button
-            onClick={onCancel}
+            onClick={() => navigate("/")}
             className="text-gray-600 hover:text-gray-800"
           >
             ← Back to List
@@ -346,7 +349,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }) {
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={() => navigate("/")}
               className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
