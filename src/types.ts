@@ -35,6 +35,9 @@ export interface Settings {
   business_name: string;
   business_address: string;
   default_hourly_rate: number;
+  ach_account: string;
+  ach_routing: string;
+  zelle_contact: string;
   created_at?: string;
   updated_at?: string;
 }

@@ -126,15 +126,33 @@ export default function PrintableInvoice() {
           </div>
         </div>
 
-        {/* Invoice Details */}
-        <div className="mb-12 pb-8 border-b border-gray-200">
+        <div className="grid grid-cols-2 gap-8 mb-12 pb-12 border-b border-gray-200">
+          {/* Invoice Details */}
           <div>
-            <p className="text-sm font-semibold text-gray-500 uppercase mb-1">
+            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">
               Invoice Date
             </p>
             <p className="text-gray-900">
               {formatDate(fullInvoice.invoice_date)}
             </p>
+          </div>
+
+          {/* Payment Methods */}
+          <div>
+            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">
+              Payment Methods
+            </p>
+            {settings.ach_account && settings.ach_routing && (
+              <p>
+                <strong>ACH:</strong> {settings.ach_account} (
+                {settings.ach_routing})
+              </p>
+            )}
+            {settings.zelle_contact && (
+              <p>
+                <strong>Zelle:</strong> {settings.zelle_contact}
+              </p>
+            )}
           </div>
         </div>
 

@@ -9,6 +9,9 @@ export default function Settings() {
     business_name: "",
     business_address: "",
     default_hourly_rate: 150,
+    ach_account: "",
+    ach_routing: "",
+    zelle_contact: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -152,6 +155,62 @@ export default function Settings() {
                   disabled={loading}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Payment Methods
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ACH Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.ach_account}
+                    onChange={(e) =>
+                      handleChange("ach_account", e.target.value)
+                    }
+                    placeholder="0000009999999999"
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ACH Routing Number
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.ach_routing}
+                    onChange={(e) =>
+                      handleChange("ach_routing", e.target.value)
+                    }
+                    placeholder="000000999"
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Zelle Email or Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.zelle_contact}
+                    onChange={(e) =>
+                      handleChange("zelle_contact", e.target.value)
+                    }
+                    placeholder="email@example.com or 330.647.3989"
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    These payment methods will appear on your invoices
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -14,10 +14,42 @@ db.run(`
     business_name TEXT NOT NULL DEFAULT '',
     business_address TEXT NOT NULL DEFAULT '',
     default_hourly_rate REAL NOT NULL DEFAULT 150.0,
+    ach_account TEXT NOT NULL DEFAULT '',
+    ach_routing TEXT NOT NULL DEFAULT '',
+    zelle_contact TEXT NOT NULL DEFAULT '',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// Migrate existing settings table to add payment fields if they don't exist
+const checkColumn = (tableName: string, columnName: string) => {
+  const result = db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{
+    name: string;
+  }>;
+  return result.some((col) => col.name === columnName);
+};
+
+if (!checkColumn("settings", "ach_account")) {
+  db.run(
+    `ALTER TABLE settings ADD COLUMN ach_account TEXT NOT NULL DEFAULT ''`,
+  );
+}
+if (!checkColumn("settings", "ach_routing")) {
+  db.run(
+    `ALTER TABLE settings ADD COLUMN ach_routing TEXT NOT NULL DEFAULT ''`,
+  );
+}
+if (!checkColumn("settings", "zelle_contact")) {
+  // Check for old column name and migrate if exists
+  if (checkColumn("settings", "zelle_phone")) {
+    db.run(`ALTER TABLE settings RENAME COLUMN zelle_phone TO zelle_contact`);
+  } else {
+    db.run(
+      `ALTER TABLE settings ADD COLUMN zelle_contact TEXT NOT NULL DEFAULT ''`,
+    );
+  }
+}
 
 // Insert default settings if not exists
 db.run(`
@@ -68,7 +100,8 @@ const queries = {
   updateSettings: db.prepare(`
     UPDATE settings 
     SET your_name = ?, business_name = ?, business_address = ?, 
-        default_hourly_rate = ?, updated_at = CURRENT_TIMESTAMP
+        default_hourly_rate = ?, ach_account = ?, ach_routing = ?, 
+        zelle_contact = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = 1
   `),
 
@@ -147,6 +180,9 @@ export const dbOperations = {
       settings.business_name,
       settings.business_address,
       settings.default_hourly_rate,
+      settings.ach_account,
+      settings.ach_routing,
+      settings.zelle_contact,
     );
     return this.getSettings();
   },
