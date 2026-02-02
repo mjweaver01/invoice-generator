@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Invoice } from "../types";
 import { formatCurrency, formatDate } from "../utils";
@@ -12,36 +12,22 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
-  const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(
-    null,
-  );
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState<number | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     loadInvoices();
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenStatusDropdown(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const loadInvoices = async () => {
+  const loadInvoices = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const data = await api.getAllInvoices();
       setInvoices(data);
     } catch (error) {
       console.error("Failed to load invoices:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -60,23 +46,25 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
     return matchesSearch && matchesStatus && matchesClient;
   });
 
-  const handleStatusChange = async (invoiceId, newStatus) => {
-    try {
-      const invoice = invoices.find((inv) => inv.id === invoiceId);
-      if (!invoice) return;
+  const handleStatusChange = async (invoiceId: number, newStatus: string) => {
+    const invoice = invoices.find((inv) => inv.id === invoiceId);
+    if (!invoice) return;
 
+    setUpdatingStatusId(invoiceId);
+    try {
       await api.updateInvoice(invoiceId, { ...invoice, status: newStatus });
-      await loadInvoices();
+      await loadInvoices(false);
     } catch (error) {
       console.error("Failed to update invoice status:", error);
+    } finally {
+      setUpdatingStatusId(null);
     }
-    setOpenStatusDropdown(null);
   };
 
   const handleDeleteInvoice = async (invoiceId: number) => {
     try {
       await api.deleteInvoice(invoiceId);
-      await loadInvoices();
+      await loadInvoices(false);
     } catch (error) {
       console.error("Failed to delete invoice:", error);
     }
@@ -91,7 +79,7 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
           <div className="flex gap-3">
             <button
               onClick={onLogout}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
               title="Logout"
             >
               <svg
@@ -106,11 +94,11 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="hidden md:inline">Logout</span>
+              <span className="hidden lg:inline">Logout</span>
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
               title="Settings"
             >
               <svg
@@ -125,11 +113,11 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="hidden md:inline">Settings</span>
+              <span className="hidden lg:inline">Settings</span>
             </button>
             <button
               onClick={() => navigate("/clients")}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
               title="Clients"
             >
               <svg
@@ -140,11 +128,11 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
               >
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
               </svg>
-              <span className="hidden md:inline">Clients</span>
+              <span className="hidden lg:inline">Clients</span>
             </button>
             <button
               onClick={() => navigate("/new")}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
               title="New Invoice"
             >
               <svg
@@ -159,7 +147,7 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="hidden md:inline">New Invoice</span>
+              <span className="hidden lg:inline">New Invoice</span>
             </button>
           </div>
         </div>
@@ -225,46 +213,19 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
               key={invoice.id}
               className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-xl font-semibold text-gray-900">
                       {invoice.invoice_number}
                     </h3>
-                    <div
-                      className="relative"
-                      ref={
-                        openStatusDropdown === invoice.id ? dropdownRef : null
+                    <StatusPill
+                      status={invoice.status}
+                      onStatusChange={(newStatus) =>
+                        handleStatusChange(invoice.id, newStatus)
                       }
-                    >
-                      <button
-                        onClick={() =>
-                          setOpenStatusDropdown(
-                            openStatusDropdown === invoice.id
-                              ? null
-                              : invoice.id,
-                          )
-                        }
-                        className="px-3 py-1 rounded-full text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1"
-                      >
-                        <StatusPill
-                          status={invoice.status}
-                          onStatusChange={(newStatus) =>
-                            handleStatusChange(invoice.id, newStatus)
-                          }
-                        />
-                      </button>
-                      {openStatusDropdown === invoice.id && (
-                        <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
-                          <StatusPill
-                            status={invoice.status}
-                            onStatusChange={(newStatus) =>
-                              handleStatusChange(invoice.id, newStatus)
-                            }
-                          />
-                        </div>
-                      )}
-                    </div>
+                      loading={updatingStatusId === invoice.id}
+                    />
                   </div>
                   <p className="text-gray-600 text-lg mb-1">
                     {invoice.client_name}

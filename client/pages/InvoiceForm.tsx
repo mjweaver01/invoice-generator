@@ -254,7 +254,7 @@ export default function InvoiceForm() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Client Information
             </h2>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Client Name *
