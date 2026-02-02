@@ -5,6 +5,7 @@ button {
   cursor: pointer;
 }
 
+/* PDF Print Styles */
 @media print {
   /* Hide non-printable elements */
   .no-print {

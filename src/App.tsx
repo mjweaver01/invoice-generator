@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import InvoiceList from "./components/InvoiceList";
-import InvoiceForm from "./components/InvoiceForm";
-import PrintableInvoice from "./components/PrintableInvoice";
-import Settings from "./components/Settings";
+
+import InvoiceList from "./pages/InvoiceList";
+import InvoiceForm from "./pages/InvoiceForm";
+import PrintableInvoice from "./pages/PrintableInvoice";
+import Settings from "./pages/Settings";
 
 export default function App() {
   return (

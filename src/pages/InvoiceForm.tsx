@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import LineItem from "./LineItem";
+import LineItem from "../components/LineItem";
 import { api } from "../api";
 import { formatCurrency } from "../utils";
 

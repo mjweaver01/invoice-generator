@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { formatCurrency, formatDate } from "../utils";
 import type { Invoice } from "../types";
+import { formatCurrency, formatDate } from "../utils";
+import { StatusPill } from "../components/StatusPill";
 
 export default function InvoiceList() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function InvoiceList() {
     null,
   );
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     loadInvoices();
@@ -51,19 +53,6 @@ export default function InvoiceList() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "draft":
-        return "bg-gray-100 text-gray-800";
-      case "sent":
-        return "bg-blue-100 text-blue-800";
-      case "paid":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const handleStatusChange = async (invoiceId, newStatus) => {
     try {
       const invoice = invoices.find((inv) => inv.id === invoiceId);
@@ -84,11 +73,18 @@ export default function InvoiceList() {
     setOpenStatusDropdown(null);
   };
 
-  const statusOptions = [
-    { value: "draft", label: "Draft" },
-    { value: "sent", label: "Sent" },
-    { value: "paid", label: "Paid" },
-  ];
+  const handleDeleteInvoice = async (invoiceId: number) => {
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete invoice");
+      await loadInvoices();
+    } catch (error) {
+      console.error("Failed to delete invoice:", error);
+    }
+    setDeleteConfirmId(null);
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -190,40 +186,23 @@ export default function InvoiceList() {
                               : invoice.id,
                           )
                         }
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)} hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1`}
+                        className="px-3 py-1 rounded-full text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1"
                       >
-                        {invoice.status.charAt(0).toUpperCase() +
-                          invoice.status.slice(1)}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        <StatusPill
+                          status={invoice.status}
+                          onStatusChange={(newStatus) =>
+                            handleStatusChange(invoice.id, newStatus)
+                          }
+                        />
                       </button>
                       {openStatusDropdown === invoice.id && (
                         <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
-                          {statusOptions.map((status) => (
-                            <button
-                              key={status.value}
-                              onClick={() =>
-                                handleStatusChange(invoice.id, status.value)
-                              }
-                              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                                invoice.status === status.value
-                                  ? "bg-gray-50 font-medium"
-                                  : ""
-                              }`}
-                            >
-                              {status.label}
-                            </button>
-                          ))}
+                          <StatusPill
+                            status={invoice.status}
+                            onStatusChange={(newStatus) =>
+                              handleStatusChange(invoice.id, newStatus)
+                            }
+                          />
                         </div>
                       )}
                     </div>
@@ -232,11 +211,9 @@ export default function InvoiceList() {
                     {invoice.client_name}
                   </p>
                   <div className="flex gap-4 text-sm text-gray-500">
-                    <span>
-                      Date: {formatDate(invoice.invoice_date, "short")}
-                    </span>
+                    <span>Date: {formatDate(invoice.invoice_date)}</span>
                     {invoice.due_date && (
-                      <span>Due: {formatDate(invoice.due_date, "short")}</span>
+                      <span>Due: {formatDate(invoice.due_date)}</span>
                     )}
                   </div>
                 </div>
@@ -264,6 +241,35 @@ export default function InvoiceList() {
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
+              Delete Invoice?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this invoice? This action cannot
+              be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteInvoice(deleteConfirmId)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
