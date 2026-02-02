@@ -24,6 +24,7 @@ export default function InvoiceForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -164,6 +165,20 @@ export default function InvoiceForm() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+
+    try {
+      setSaving(true);
+      await api.deleteInvoice(id);
+      navigate("/");
+    } catch (err) {
+      setError("Failed to delete invoice. Please try again.");
+      setSaving(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -360,25 +375,72 @@ export default function InvoiceForm() {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              disabled={loading}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving || loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? "Saving..." : loading ? "Loading..." : "Save Invoice"}
-            </button>
+          <div className="flex justify-between items-center">
+            {id && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={saving || loading}
+                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Delete Invoice
+              </button>
+            )}
+            <div className="flex gap-4 ml-auto">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                disabled={loading}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving || loading}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? "Saving..." : loading ? "Loading..." : "Save Invoice"}
+              </button>
+            </div>
           </div>
         </form>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="absolute inset-0 bg-black opacity-75 z-0"
+            onClick={() => setShowDeleteConfirm(false)}
+          ></div>
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 z-1">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
+              Delete Invoice?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this invoice? This action cannot
+              be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={saving}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={saving}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
