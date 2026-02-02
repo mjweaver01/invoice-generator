@@ -57,7 +57,7 @@ export default function PrintableInvoice() {
           onClick={() => navigate("/")}
           className="text-gray-600 hover:text-gray-800 font-medium"
         >
-          ← Back to List
+          ← Back to Invoices
         </button>
         <button
           onClick={handlePrint}

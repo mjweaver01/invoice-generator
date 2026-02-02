@@ -193,7 +193,7 @@ export default function InvoiceForm() {
             onClick={() => navigate("/")}
             className="text-gray-600 hover:text-gray-800"
           >
-            ← Back to List
+            ← Back to Invoices
           </button>
         </div>
 
