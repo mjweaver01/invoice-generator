@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { api } from "../api";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatDate } from "../utils";
 
 export default function PrintableInvoice() {
   const navigate = useNavigate();
@@ -32,15 +32,6 @@ export default function PrintableInvoice() {
     contentRef: invoiceRef,
     documentTitle: fullInvoice?.invoice_number || "Invoice",
   });
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   if (loading || !fullInvoice) {
     return (

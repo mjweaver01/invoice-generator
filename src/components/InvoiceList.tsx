@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatDate } from "../utils";
 import type { Invoice } from "../types";
 
 export default function InvoiceList() {
@@ -62,14 +62,6 @@ export default function InvoiceList() {
       default:
         return "bg-gray-100 text-gray-800";
     }
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   const handleStatusChange = async (invoiceId, newStatus) => {
@@ -240,9 +232,11 @@ export default function InvoiceList() {
                     {invoice.client_name}
                   </p>
                   <div className="flex gap-4 text-sm text-gray-500">
-                    <span>Date: {formatDate(invoice.invoice_date)}</span>
+                    <span>
+                      Date: {formatDate(invoice.invoice_date, "short")}
+                    </span>
                     {invoice.due_date && (
-                      <span>Due: {formatDate(invoice.due_date)}</span>
+                      <span>Due: {formatDate(invoice.due_date, "short")}</span>
                     )}
                   </div>
                 </div>
