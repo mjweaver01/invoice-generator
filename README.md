@@ -54,7 +54,8 @@ bun start
 
 The server will start on port `9000` by default. Visit `http://localhost:9000` to use the app.
 
-**Database**
+## Database
+
 The SQLite database file will be created automatically in `./invoices.db` on first run (no setup needed).
 
 ## License
