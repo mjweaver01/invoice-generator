@@ -62,33 +62,28 @@ export function StatusPill({
         type="button"
         onClick={() => !loading && setIsOpen(!isOpen)}
         disabled={loading}
-        className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor} flex items-center gap-1 justify-center ${
+        className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor} flex items-center gap-1 justify-center min-w-[75px] ${
           loading
             ? "opacity-80 cursor-wait"
             : "hover:opacity-80 transition-opacity cursor-pointer"
         }`}
       >
+        <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
         {loading ? (
-          <>
-            <span className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
-            <span>Updating…</span>
-          </>
+          <span className="animate-spin rounded-full h-3 w-3 m-[2px] border-2 border-current border-t-transparent" />
         ) : (
-          <>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
         )}
       </button>
       {isOpen && !loading && (
