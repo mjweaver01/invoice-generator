@@ -10,6 +10,7 @@ export default function InvoiceList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [clientFilter, setClientFilter] = useState("all");
   const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(
     null,
   );
@@ -44,13 +45,19 @@ export default function InvoiceList() {
     }
   };
 
+  const uniqueClients = Array.from(
+    new Set(invoices.map((inv) => inv.client_name)),
+  ).sort();
+
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || invoice.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesClient =
+      clientFilter === "all" || invoice.client_name === clientFilter;
+    return matchesSearch && matchesStatus && matchesClient;
   });
 
   const handleStatusChange = async (invoiceId, newStatus) => {
@@ -141,6 +148,18 @@ export default function InvoiceList() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
           />
+          <select
+            value={clientFilter}
+            onChange={(e) => setClientFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All Clients</option>
+            {uniqueClients.map((client) => (
+              <option key={client} value={client}>
+                {client}
+              </option>
+            ))}
+          </select>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
