@@ -11,6 +11,20 @@ function getAuthHeaders(): HeadersInit {
   return headers;
 }
 
+/** Fetch with auth; on 401 clears token and redirects to login */
+async function authFetch(input: string, init?: RequestInit): Promise<Response> {
+  const response = await fetch(input, {
+    ...init,
+    headers: { ...getAuthHeaders(), ...(init?.headers as HeadersInit) },
+  });
+  if (response.status === 401) {
+    localStorage.removeItem(TOKEN_KEY);
+    window.location.replace("/login");
+    throw new Error("Unauthorized");
+  }
+  return response;
+}
+
 export const auth = {
   getToken() {
     return localStorage.getItem(TOKEN_KEY);
@@ -55,15 +69,8 @@ export const auth = {
   },
 
   async getCurrentUser() {
-    const response = await fetch(`${API_BASE}/auth/me`, {
-      headers: getAuthHeaders(),
-    });
-    if (!response.ok) {
-      if (response.status === 401) {
-        this.clearToken();
-      }
-      throw new Error("Failed to fetch current user");
-    }
+    const response = await authFetch(`${API_BASE}/auth/me`);
+    if (!response.ok) throw new Error("Failed to fetch current user");
     return response.json();
   },
 
@@ -74,17 +81,14 @@ export const auth = {
 
 export const api = {
   async getSettings() {
-    const response = await fetch(`${API_BASE}/settings`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await authFetch(`${API_BASE}/settings`);
     if (!response.ok) throw new Error("Failed to fetch settings");
     return response.json();
   },
 
   async updateSettings(settings) {
-    const response = await fetch(`${API_BASE}/settings`, {
+    const response = await authFetch(`${API_BASE}/settings`, {
       method: "PUT",
-      headers: getAuthHeaders(),
       body: JSON.stringify(settings),
     });
     if (!response.ok) throw new Error("Failed to update settings");
@@ -92,33 +96,26 @@ export const api = {
   },
 
   async getAllClients() {
-    const response = await fetch(`${API_BASE}/clients`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await authFetch(`${API_BASE}/clients`);
     if (!response.ok) throw new Error("Failed to fetch clients");
     return response.json();
   },
 
   async getAllInvoices() {
-    const response = await fetch(`${API_BASE}/invoices`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await authFetch(`${API_BASE}/invoices`);
     if (!response.ok) throw new Error("Failed to fetch invoices");
     return response.json();
   },
 
   async getInvoice(id) {
-    const response = await fetch(`${API_BASE}/invoices/${id}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await authFetch(`${API_BASE}/invoices/${id}`);
     if (!response.ok) throw new Error("Failed to fetch invoice");
     return response.json();
   },
 
   async createInvoice(invoiceData) {
-    const response = await fetch(`${API_BASE}/invoices`, {
+    const response = await authFetch(`${API_BASE}/invoices`, {
       method: "POST",
-      headers: getAuthHeaders(),
       body: JSON.stringify(invoiceData),
     });
     if (!response.ok) throw new Error("Failed to create invoice");
@@ -126,9 +123,8 @@ export const api = {
   },
 
   async updateInvoice(id, invoiceData) {
-    const response = await fetch(`${API_BASE}/invoices/${id}`, {
+    const response = await authFetch(`${API_BASE}/invoices/${id}`, {
       method: "PUT",
-      headers: getAuthHeaders(),
       body: JSON.stringify(invoiceData),
     });
     if (!response.ok) throw new Error("Failed to update invoice");
@@ -136,18 +132,16 @@ export const api = {
   },
 
   async deleteInvoice(id) {
-    const response = await fetch(`${API_BASE}/invoices/${id}`, {
+    const response = await authFetch(`${API_BASE}/invoices/${id}`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error("Failed to delete invoice");
     return response.json();
   },
 
   async updateClient(id, clientData) {
-    const response = await fetch(`${API_BASE}/clients/${id}`, {
+    const response = await authFetch(`${API_BASE}/clients/${id}`, {
       method: "PUT",
-      headers: getAuthHeaders(),
       body: JSON.stringify(clientData),
     });
     if (!response.ok) throw new Error("Failed to update client");
@@ -155,9 +149,8 @@ export const api = {
   },
 
   async deleteClient(id) {
-    const response = await fetch(`${API_BASE}/clients/${id}`, {
+    const response = await authFetch(`${API_BASE}/clients/${id}`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error("Failed to delete client");
     return response.json();

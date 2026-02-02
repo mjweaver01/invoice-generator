@@ -91,12 +91,12 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
           <div className="flex gap-3">
             <button
               onClick={onLogout}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
               title="Logout"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-5 w-5 shrink-0"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -106,15 +106,16 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   clipRule="evenodd"
                 />
               </svg>
-              Logout
+              <span className="hidden md:inline">Logout</span>
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              title="Settings"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-5 w-5 shrink-0"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -124,32 +125,46 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   clipRule="evenodd"
                 />
               </svg>
-              Settings
+              <span className="hidden md:inline">Settings</span>
             </button>
             <button
               onClick={() => navigate("/clients")}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              title="Clients"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-5 w-5 shrink-0"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
               </svg>
-              Clients
+              <span className="hidden md:inline">Clients</span>
             </button>
             <button
               onClick={() => navigate("/new")}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-3 md:px-6 rounded-lg transition-colors flex items-center gap-2"
+              title="New Invoice"
             >
-              + New Invoice
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="hidden md:inline">New Invoice</span>
             </button>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
           <input
             type="text"
             placeholder="Search by client or invoice number..."
@@ -157,28 +172,30 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
           />
-          <select
-            value={clientFilter}
-            onChange={(e) => setClientFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Clients</option>
-            {uniqueClients.map((client) => (
-              <option key={client} value={client}>
-                {client}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="sent">Sent</option>
-            <option value="paid">Paid</option>
-          </select>
+          <div className="flex gap-4">
+            <select
+              value={clientFilter}
+              onChange={(e) => setClientFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Clients</option>
+              {uniqueClients.map((client) => (
+                <option key={client} value={client}>
+                  {client}
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
         </div>
       </div>
 
