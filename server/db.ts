@@ -1,4 +1,5 @@
-import { Database } from "bun:sqlite";
+import { Database, SQLQueryBindings } from "bun:sqlite";
+import type { Client, Invoice, LineItem, Settings } from "../src/types";
 
 // Initialize database
 const db = new Database("invoices.db");
@@ -95,9 +96,11 @@ db.run(`
 // Prepared statements
 const queries = {
   // Settings queries
-  getSettings: db.prepare(`SELECT * FROM settings WHERE id = 1`),
+  getSettings: db.prepare<Settings, SQLQueryBindings[]>(
+    `SELECT * FROM settings WHERE id = 1`,
+  ),
 
-  updateSettings: db.prepare(`
+  updateSettings: db.prepare<Settings, SQLQueryBindings[]>(`
     UPDATE settings 
     SET your_name = ?, business_name = ?, business_address = ?, 
         default_hourly_rate = ?, ach_account = ?, ach_routing = ?, 
@@ -106,39 +109,45 @@ const queries = {
   `),
 
   // Client queries
-  getAllClients: db.prepare(`SELECT * FROM clients ORDER BY name`),
+  getAllClients: db.prepare<Client[], SQLQueryBindings[]>(
+    `SELECT * FROM clients ORDER BY name`,
+  ),
 
-  getClient: db.prepare(`SELECT * FROM clients WHERE id = ?`),
+  getClient: db.prepare<Client, SQLQueryBindings[]>(
+    `SELECT * FROM clients WHERE id = ?`,
+  ),
 
-  getClientByName: db.prepare(`SELECT * FROM clients WHERE name = ?`),
+  getClientByName: db.prepare<Client, SQLQueryBindings[]>(
+    `SELECT * FROM clients WHERE name = ?`,
+  ),
 
-  createClient: db.prepare(`
+  createClient: db.prepare<Client, SQLQueryBindings[]>(`
     INSERT INTO clients (name, address) VALUES (?, ?)
   `),
 
-  updateClient: db.prepare(`
+  updateClient: db.prepare<Client, SQLQueryBindings[]>(`
     UPDATE clients SET name = ?, address = ? WHERE id = ?
   `),
 
   // Invoice queries
-  getAllInvoices: db.prepare(`
+  getAllInvoices: db.prepare<Invoice[], SQLQueryBindings[]>(`
     SELECT * FROM invoices 
     ORDER BY created_at DESC
   `),
 
-  getInvoice: db.prepare(`
+  getInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     SELECT * FROM invoices 
     WHERE id = ?
   `),
 
-  createInvoice: db.prepare(`
+  createInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     INSERT INTO invoices (
       invoice_number, client_name, client_address, invoice_date,
       hourly_rate, status, total
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `),
 
-  updateInvoice: db.prepare(`
+  updateInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     UPDATE invoices 
     SET invoice_number = ?, client_name = ?, client_address = ?, 
         invoice_date = ?, hourly_rate = ?, status = ?, total = ?,
@@ -146,23 +155,23 @@ const queries = {
     WHERE id = ?
   `),
 
-  deleteInvoice: db.prepare(`
+  deleteInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     DELETE FROM invoices WHERE id = ?
   `),
 
   // Line item queries
-  getLineItems: db.prepare(`
+  getLineItems: db.prepare<LineItem[], SQLQueryBindings[]>(`
     SELECT * FROM line_items 
     WHERE invoice_id = ? 
     ORDER BY order_index
   `),
 
-  createLineItem: db.prepare(`
+  createLineItem: db.prepare<LineItem, SQLQueryBindings[]>(`
     INSERT INTO line_items (invoice_id, description, hours, order_index)
     VALUES (?, ?, ?, ?)
   `),
 
-  deleteLineItemsByInvoice: db.prepare(`
+  deleteLineItemsByInvoice: db.prepare<LineItem, SQLQueryBindings[]>(`
     DELETE FROM line_items WHERE invoice_id = ?
   `),
 };
@@ -201,6 +210,10 @@ export const dbOperations = {
     if (!client) {
       const result = queries.createClient.run(name, address || null);
       client = this.getClient(result.lastInsertRowid);
+    } else if (address && address !== client.address) {
+      // Update address if provided and different
+      queries.updateClient.run(name, address, client.id);
+      client = this.getClient(client.id);
     }
     return client;
   },
