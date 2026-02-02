@@ -9,7 +9,9 @@ export default function InvoiceList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(null);
+  const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(
+    null,
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -182,16 +184,24 @@ export default function InvoiceList() {
                     <h3 className="text-xl font-semibold text-gray-900">
                       {invoice.invoice_number}
                     </h3>
-                    <div className="relative" ref={openStatusDropdown === invoice.id ? dropdownRef : null}>
+                    <div
+                      className="relative"
+                      ref={
+                        openStatusDropdown === invoice.id ? dropdownRef : null
+                      }
+                    >
                       <button
                         onClick={() =>
                           setOpenStatusDropdown(
-                            openStatusDropdown === invoice.id ? null : invoice.id
+                            openStatusDropdown === invoice.id
+                              ? null
+                              : invoice.id,
                           )
                         }
                         className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(invoice.status)} hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1`}
                       >
-                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                        {invoice.status.charAt(0).toUpperCase() +
+                          invoice.status.slice(1)}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-4 w-4"
