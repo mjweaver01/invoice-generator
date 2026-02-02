@@ -1,23 +1,21 @@
 # Invoice Generator
 
-A modern invoice generation application built with Bun v1.3, React, Tailwind CSS, and SQLite.
+A modern invoice generation application built with Bun, React, Tailwind CSS, and SQLite.
 
 ## Features
 
-- ✨ Create and manage invoices with line items
-- 💰 Automatic total calculation based on hourly rate
-- ⚙️ Global settings for your name, business info, and defaults
-- 👥 Client dropdown with autocomplete (remembers past clients)
-- 🗄️ SQLite database for persistent storage
+- ✨ Create and manage invoices
+- 💰 Automatic price calculation based on hourly rate
+- 👥 Client management with autocomplete and addresses
 - 📄 Print to PDF using browser's native print dialog
+- ⚙️ Global settings for business info and payment methods
+- 🗄️ SQLite database for persistent storage
 - 🎨 Modern, responsive UI with Tailwind CSS v4
-- 🔍 Search and filter invoices by client
-- 📊 Track invoice status (draft, sent, paid)
 
 ## Tech Stack
 
 - **Runtime:** Bun v1.3
-- **Frontend:** React 18 + Tailwind CSS v4
+- **Frontend:** React 19 + Tailwind CSS v4
 - **Database:** Native `bun:sqlite` (no dependencies)
 - **PDF Generation:** Browser native print with React-to-Print
 - **TypeScript:** Native TypeScript support via Bun
