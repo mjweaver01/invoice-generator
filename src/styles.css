@@ -5,6 +5,16 @@ button {
   cursor: pointer;
 }
 
+/* Normalize input and select heights */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+input[type="email"],
+select {
+  height: 42px;
+  line-height: 1.5;
+}
+
 /* PDF Print Styles */
 @media print {
   /* Hide non-printable elements */
