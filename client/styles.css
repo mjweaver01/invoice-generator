@@ -61,3 +61,8 @@ select {
     color: #000 !important;
   }
 }
+
+/* Tailwind Theme */
+@theme {
+  --breakpoint-xs: 30rem;
+}
