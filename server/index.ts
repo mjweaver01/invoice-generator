@@ -1,6 +1,6 @@
 import path from "path";
 import { existsSync, statSync } from "fs";
-import indexPageHtml from "../src/index.html";
+import indexPageHtml from "../client/index.html";
 import { handleApiRoutes } from "./routes";
 
 console.log(

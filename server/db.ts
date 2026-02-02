@@ -1,5 +1,5 @@
 import { Database, SQLQueryBindings } from "bun:sqlite";
-import type { Client, Invoice, LineItem, Settings } from "../src/types";
+import type { Client, Invoice, LineItem, Settings } from "../client/types";
 
 // Initialize database
 const db = new Database("invoices.db");

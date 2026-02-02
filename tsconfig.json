@@ -30,5 +30,5 @@
     // ignore implicitly has an 'any' type.ts(7006)
     "noImplicitAny": false
   },
-  "include": ["src/**/*"]
+  "include": ["client/**/*", "server/**/*"]
 }
