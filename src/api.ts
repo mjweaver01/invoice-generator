@@ -62,4 +62,22 @@ export const api = {
     if (!response.ok) throw new Error("Failed to delete invoice");
     return response.json();
   },
+
+  async updateClient(id, clientData) {
+    const response = await fetch(`${API_BASE}/clients/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(clientData),
+    });
+    if (!response.ok) throw new Error("Failed to update client");
+    return response.json();
+  },
+
+  async deleteClient(id) {
+    const response = await fetch(`${API_BASE}/clients/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Failed to delete client");
+    return response.json();
+  },
 };

@@ -129,6 +129,10 @@ const queries = {
     UPDATE clients SET name = ?, address = ? WHERE id = ?
   `),
 
+  deleteClient: db.prepare<Client, SQLQueryBindings[]>(`
+    DELETE FROM clients WHERE id = ?
+  `),
+
   // Invoice queries
   getAllInvoices: db.prepare<Invoice[], SQLQueryBindings[]>(`
     SELECT * FROM invoices 
@@ -216,6 +220,16 @@ export const dbOperations = {
       client = this.getClient(client.id);
     }
     return client;
+  },
+
+  updateClient(id, clientData) {
+    queries.updateClient.run(clientData.name, clientData.address || null, id);
+    return this.getClient(id);
+  },
+
+  deleteClient(id) {
+    const result = queries.deleteClient.run(id);
+    return result.changes > 0;
   },
 
   // Invoice operations

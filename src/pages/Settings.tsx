@@ -89,9 +89,6 @@ export default function Settings() {
                   disabled={loading}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  This will appear on your invoices
-                </p>
               </div>
             </div>
 
@@ -207,9 +204,6 @@ export default function Settings() {
                     disabled={loading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                   />
-                  <p className="text-sm text-gray-500 mt-1">
-                    These payment methods will appear on your invoices
-                  </p>
                 </div>
               </div>
             </div>

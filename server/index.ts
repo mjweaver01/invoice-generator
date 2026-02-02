@@ -23,6 +23,7 @@ const server = Bun.serve({
     "/edit/:id": indexPageHtml,
     "/print/:id": indexPageHtml,
     "/settings": indexPageHtml,
+    "/clients": indexPageHtml,
 
     // API routes
     "/api/settings": {
@@ -31,6 +32,10 @@ const server = Bun.serve({
     },
     "/api/clients": {
       GET: async (req) => handleApiRoutes(req, new URL(req.url)),
+    },
+    "/api/clients/:id": {
+      PUT: async (req) => handleApiRoutes(req, new URL(req.url)),
+      DELETE: async (req) => handleApiRoutes(req, new URL(req.url)),
     },
     "/api/invoices": {
       GET: async (req) => handleApiRoutes(req, new URL(req.url)),

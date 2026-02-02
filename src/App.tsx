@@ -4,6 +4,7 @@ import InvoiceList from "./pages/InvoiceList";
 import InvoiceForm from "./pages/InvoiceForm";
 import PrintableInvoice from "./pages/PrintableInvoice";
 import Settings from "./pages/Settings";
+import Clients from "./pages/Clients";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/edit/:id" element={<InvoiceForm />} />
           <Route path="/print/:id" element={<PrintableInvoice />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/clients" element={<Clients />} />
         </Routes>
       </div>
     </BrowserRouter>

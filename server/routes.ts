@@ -37,6 +37,37 @@ export async function handleApiRoutes(req, url) {
       return new Response(JSON.stringify(clients), { headers });
     }
 
+    // PUT /api/clients/:id - Update client
+    if (path.match(/^\/api\/clients\/\d+$/) && method === "PUT") {
+      const id = parseInt(path.split("/").pop());
+      const body = await req.json();
+      const client = dbOperations.updateClient(id, body);
+
+      if (!client) {
+        return new Response(JSON.stringify({ error: "Client not found" }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      return new Response(JSON.stringify(client), { headers });
+    }
+
+    // DELETE /api/clients/:id - Delete client
+    if (path.match(/^\/api\/clients\/\d+$/) && method === "DELETE") {
+      const id = parseInt(path.split("/").pop());
+      const deleted = dbOperations.deleteClient(id);
+
+      if (!deleted) {
+        return new Response(JSON.stringify({ error: "Client not found" }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), { headers });
+    }
+
     // GET /api/invoices - Get all invoices
     if (path === "/api/invoices" && method === "GET") {
       const invoices = dbOperations.getAllInvoices();
