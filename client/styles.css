@@ -11,7 +11,7 @@ input[type="date"],
 input[type="number"],
 input[type="email"],
 select {
-  height: 42px;
+  min-height: 42px;
   line-height: 1.5;
 }
 
