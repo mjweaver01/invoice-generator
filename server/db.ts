@@ -78,6 +78,15 @@ db.run(`
   )
 `);
 
+// Migrations — safe to run on every startup (ALTER TABLE fails silently if column exists)
+for (const migration of [
+  `ALTER TABLE settings ADD COLUMN state TEXT NOT NULL DEFAULT 'Ohio'`,
+  `ALTER TABLE settings ADD COLUMN federal_tax_rate REAL NOT NULL DEFAULT 25.0`,
+  `ALTER TABLE settings ADD COLUMN state_tax_rate REAL NOT NULL DEFAULT 3.99`,
+]) {
+  try { db.run(migration); } catch { /* column already exists */ }
+}
+
 db.run(`
   INSERT OR IGNORE INTO settings (id, your_name, business_name, business_address)
   VALUES (1, '', '', '')
@@ -102,7 +111,8 @@ const queries = {
     UPDATE settings
     SET your_name = ?, business_name = ?, business_address = ?,
         default_hourly_rate = ?, ach_account = ?, ach_routing = ?,
-        zelle_contact = ?, updated_at = CURRENT_TIMESTAMP
+        zelle_contact = ?, state = ?, federal_tax_rate = ?,
+        state_tax_rate = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = 1
   `),
 
@@ -184,6 +194,9 @@ export const dbOperations = {
       settings.ach_account,
       settings.ach_routing,
       settings.zelle_contact,
+      settings.state ?? "Ohio",
+      settings.federal_tax_rate ?? 25.0,
+      settings.state_tax_rate ?? 3.99,
     );
     return this.getSettings();
   },
@@ -193,6 +206,12 @@ export const dbOperations = {
   },
   getClient(id: number, userId: number) {
     return queries.getClient.get(id, userId);
+  },
+  createClient(name: string, address: string | undefined, userId: number) {
+    const existing = queries.getClientByName.get(name, userId);
+    if (existing) throw new Error("A client with that name already exists");
+    const result = queries.createClient.run(userId, name, address ?? null);
+    return this.getClient(result.lastInsertRowid as number, userId);
   },
   getOrCreateClient(name: string, address: string | undefined, userId: number) {
     let client = queries.getClientByName.get(name, userId);
@@ -303,19 +322,22 @@ export const dbOperations = {
       id,
       userId,
     );
-    queries.deleteLineItemsByInvoice.run(id);
 
-    if (line_items?.length) {
-      line_items.forEach((item, index) => {
-        if (item.description && item.hours != null) {
-          queries.createLineItem.run(
-            id,
-            item.description,
-            parseFloat(String(item.hours)),
-            index,
-          );
-        }
-      });
+    // Only replace line items if they were explicitly included in the payload
+    if (line_items !== undefined) {
+      queries.deleteLineItemsByInvoice.run(id);
+      if (line_items?.length) {
+        line_items.forEach((item, index) => {
+          if (item.description && item.hours != null) {
+            queries.createLineItem.run(
+              id,
+              item.description,
+              parseFloat(String(item.hours)),
+              index,
+            );
+          }
+        });
+      }
     }
     return this.getInvoice(id, userId);
   },

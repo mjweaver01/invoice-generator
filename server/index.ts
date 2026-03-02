@@ -24,6 +24,7 @@ const server = Bun.serve({
     "/print/:id": indexPageHtml,
     "/settings": indexPageHtml,
     "/clients": indexPageHtml,
+    "/analytics": indexPageHtml,
     "/login": indexPageHtml,
 
     // API routes
@@ -42,6 +43,7 @@ const server = Bun.serve({
     },
     "/api/clients": {
       GET: async (req) => handleApiRoutes(req, new URL(req.url)),
+      POST: async (req) => handleApiRoutes(req, new URL(req.url)),
     },
     "/api/clients/:id": {
       PUT: async (req) => handleApiRoutes(req, new URL(req.url)),
@@ -117,7 +119,9 @@ const server = Bun.serve({
       }
 
       // Otherwise, serve the SPA for client-side routing
-      return indexPageHtml;
+      return new Response(Bun.file(path.join(import.meta.dir, "..", "client", "index.html")), {
+        headers: { "Content-Type": "text/html" },
+      });
     },
   },
 

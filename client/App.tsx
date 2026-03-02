@@ -13,6 +13,7 @@ import InvoiceForm from "./pages/InvoiceForm";
 import PrintableInvoice from "./pages/PrintableInvoice";
 import Settings from "./pages/Settings";
 import Clients from "./pages/Clients";
+import Analytics from "./pages/Analytics";
 import Login from "./pages/Login";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -97,6 +98,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Clients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             }
           />

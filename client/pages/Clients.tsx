@@ -13,11 +13,13 @@ export default function Clients() {
     address: "",
   });
   const [loading, setLoading] = useState(true);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
-    null,
-  );
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [savingClientId, setSavingClientId] = useState<number | null>(null);
+  const [showNewClientForm, setShowNewClientForm] = useState(false);
+  const [newClientData, setNewClientData] = useState({ name: "", address: "" });
+  const [creatingClient, setCreatingClient] = useState(false);
+  const [newClientError, setNewClientError] = useState<string | null>(null);
 
   useEffect(() => {
     loadClients();
@@ -65,6 +67,27 @@ export default function Clients() {
     }
   };
 
+  const handleCreateClient = async () => {
+    if (!newClientData.name.trim()) {
+      setNewClientError("Client name is required");
+      return;
+    }
+    setCreatingClient(true);
+    setNewClientError(null);
+    try {
+      await api.createClient({ name: newClientData.name.trim(), address: newClientData.address || undefined });
+      await loadClients();
+      setNewClientData({ name: "", address: "" });
+      setShowNewClientForm(false);
+      setSuccessMessage("Client created successfully!");
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setNewClientError((err as Error).message);
+    } finally {
+      setCreatingClient(false);
+    }
+  };
+
   const handleDeleteClient = async (id) => {
     try {
       await api.deleteClient(id);
@@ -83,12 +106,28 @@ export default function Clients() {
       <div className="bg-white rounded-xl shadow-sm p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
-          <button
-            onClick={() => navigate("/")}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            ← Back to Invoices
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setShowNewClientForm((v) => !v);
+                setNewClientError(null);
+                setNewClientData({ name: "", address: "" });
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
+              title="New Client"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              <span className="hidden lg:inline">New Client</span>
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              ← Back to Invoices
+            </button>
+          </div>
         </div>
 
         {successMessage && (
@@ -97,18 +136,78 @@ export default function Clients() {
           </div>
         )}
 
+        {showNewClientForm && (
+          <div className="border border-gray-200 rounded-lg p-4 mb-3 space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Client Name
+              </label>
+              <input
+                type="text"
+                value={newClientData.name}
+                onChange={(e) => {
+                  setNewClientData((d) => ({ ...d, name: e.target.value }));
+                  setNewClientError(null);
+                }}
+                placeholder="Acme Corp"
+                autoFocus
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address
+              </label>
+              <textarea
+                value={newClientData.address}
+                onChange={(e) => setNewClientData((d) => ({ ...d, address: e.target.value }))}
+                rows={2}
+                placeholder="123 Main St, Columbus, OH 43201"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y placeholder:text-gray-400"
+              />
+            </div>
+            {newClientError && (
+              <p className="text-sm text-red-600">{newClientError}</p>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleCreateClient}
+                disabled={creatingClient}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 min-w-[100px] justify-center disabled:opacity-80 disabled:cursor-wait"
+              >
+                {creatingClient ? (
+                  <>
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    Saving…
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowNewClientForm(false); setNewClientError(null); }}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <p className="text-gray-500">Loading clients...</p>
         ) : clients.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">
-              No clients yet. Create an invoice to add clients.
+              No clients yet.
             </p>
             <button
-              onClick={() => navigate("/new")}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              onClick={() => setShowNewClientForm(true)}
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
             >
-              Create your first invoice
+              Add your first client
             </button>
           </div>
         ) : (

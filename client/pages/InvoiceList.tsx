@@ -116,6 +116,21 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
               <span className="hidden lg:inline">Settings</span>
             </button>
             <button
+              onClick={() => navigate("/analytics")}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
+              title="Analytics"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+              </svg>
+              <span className="hidden lg:inline">Analytics</span>
+            </button>
+            <button
               onClick={() => navigate("/clients")}
               className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
               title="Clients"

@@ -157,6 +157,26 @@ export async function handleApiRoutes(req, url) {
       return new Response(JSON.stringify(clients), { headers });
     }
 
+    // POST /api/clients - Create new client
+    if (path === "/api/clients" && method === "POST") {
+      const body = await req.json();
+      if (!body.name?.trim()) {
+        return new Response(
+          JSON.stringify({ error: "Client name is required" }),
+          { status: 400, headers },
+        );
+      }
+      try {
+        const client = dbOperations.createClient(body.name.trim(), body.address ?? undefined, auth.userId);
+        return new Response(JSON.stringify(client), { status: 201, headers });
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ error: (err as Error).message }),
+          { status: 409, headers },
+        );
+      }
+    }
+
     // PUT /api/clients/:id - Update client
     if (path.match(/^\/api\/clients\/\d+$/) && method === "PUT") {
       const id = parseInt(path.split("/").pop()!);

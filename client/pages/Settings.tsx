@@ -2,6 +2,23 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 
+// Approximate state income tax rates (top marginal or flat rate for freelancers)
+const STATE_TAX_RATES: Record<string, number> = {
+  Alabama: 5.0, Alaska: 0, Arizona: 2.5, Arkansas: 4.4, California: 9.3,
+  Colorado: 4.4, Connecticut: 6.99, Delaware: 6.6, Florida: 0, Georgia: 5.49,
+  Hawaii: 8.25, Idaho: 5.8, Illinois: 4.95, Indiana: 3.05, Iowa: 5.7,
+  Kansas: 5.7, Kentucky: 4.0, Louisiana: 4.25, Maine: 7.15, Maryland: 5.75,
+  Massachusetts: 5.0, Michigan: 4.25, Minnesota: 9.85, Mississippi: 4.7,
+  Missouri: 4.8, Montana: 6.75, Nebraska: 5.84, Nevada: 0,
+  "New Hampshire": 0, "New Jersey": 6.37, "New Mexico": 5.9,
+  "New York": 6.85, "North Carolina": 4.5, "North Dakota": 2.5,
+  Ohio: 3.99, Oklahoma: 4.75, Oregon: 9.9, Pennsylvania: 3.07,
+  "Rhode Island": 5.99, "South Carolina": 6.2, "South Dakota": 0,
+  Tennessee: 0, Texas: 0, Utah: 4.65, Vermont: 6.6, Virginia: 5.75,
+  Washington: 0, "West Virginia": 5.12, Wisconsin: 7.65, Wyoming: 0,
+  "Washington D.C.": 8.5,
+};
+
 export default function Settings() {
   const navigate = useNavigate();
   const [settings, setSettings] = useState({
@@ -12,6 +29,9 @@ export default function Settings() {
     ach_account: "",
     ach_routing: "",
     zelle_contact: "",
+    state: "Ohio",
+    federal_tax_rate: 25.0,
+    state_tax_rate: 3.99,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -152,6 +172,75 @@ export default function Settings() {
                   disabled={loading}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                Tax Withholding
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Used to estimate quarterly taxes on the Analytics page. Rates are approximate — consult a tax professional for your exact situation.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    State
+                  </label>
+                  <select
+                    value={settings.state}
+                    onChange={(e) => {
+                      const state = e.target.value;
+                      const suggestedRate = STATE_TAX_RATES[state] ?? 0;
+                      handleChange("state", state);
+                      handleChange("state_tax_rate", suggestedRate);
+                    }}
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    {Object.keys(STATE_TAX_RATES).sort().map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Federal Rate (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={settings.federal_tax_rate}
+                      onChange={(e) =>
+                        handleChange("federal_tax_rate", parseFloat(e.target.value) || 0)
+                      }
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      disabled={loading}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Includes SE tax (~15.3%) + income tax</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      State Rate (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={settings.state_tax_rate}
+                      onChange={(e) =>
+                        handleChange("state_tax_rate", parseFloat(e.target.value) || 0)
+                      }
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      disabled={loading}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Auto-filled when you select a state</p>
+                  </div>
+                </div>
               </div>
             </div>
 

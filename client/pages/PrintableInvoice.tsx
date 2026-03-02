@@ -45,9 +45,11 @@ export default function PrintableInvoice() {
 
   const lineItems = fullInvoice.line_items || [];
   const settings = fullInvoice.settings || {};
-  const subtotal = lineItems.reduce((total, item) => {
-    return total + item.hours * fullInvoice.hourly_rate;
+  const computedSubtotal = lineItems.reduce((total, item) => {
+    return total + (parseFloat(String(item.hours)) || 0) * fullInvoice.hourly_rate;
   }, 0);
+  // Fall back to stored total if line items are missing (e.g. status was changed from the list view)
+  const subtotal = computedSubtotal > 0 ? computedSubtotal : (fullInvoice.total || 0);
 
   return (
     <div className="max-w-4xl mx-auto p-6">

@@ -38,6 +38,9 @@ export interface Settings {
   ach_account: string;
   ach_routing: string;
   zelle_contact: string;
+  state: string;
+  federal_tax_rate: number;
+  state_tax_rate: number;
   created_at?: string;
   updated_at?: string;
 }

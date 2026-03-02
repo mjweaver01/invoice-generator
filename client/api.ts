@@ -139,6 +139,18 @@ export const api = {
     return response.json();
   },
 
+  async createClient(clientData: { name: string; address?: string }) {
+    const response = await authFetch(`${API_BASE}/clients`, {
+      method: "POST",
+      body: JSON.stringify(clientData),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || "Failed to create client");
+    }
+    return response.json();
+  },
+
   async updateClient(id, clientData) {
     const response = await authFetch(`${API_BASE}/clients/${id}`, {
       method: "PUT",
