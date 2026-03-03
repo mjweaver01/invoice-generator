@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
+import Navigation from "../components/Navigation";
 
 export default function Clients() {
   const navigate = useNavigate();
@@ -104,31 +105,35 @@ export default function Clients() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-sm p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
-          <div className="flex items-center gap-3">
+        <Navigation
+          title="Clients"
+          showNewInvoice={false}
+          actions={
             <button
               onClick={() => {
                 setShowNewClientForm((v) => !v);
                 setNewClientError(null);
                 setNewClientData({ name: "", address: "" });
               }}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
               title="New Client"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span className="hidden lg:inline">New Client</span>
             </button>
-            <button
-              onClick={() => navigate("/")}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              ← Back to Invoices
-            </button>
-          </div>
-        </div>
+          }
+        />
 
         {successMessage && (
           <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">

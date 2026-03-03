@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 import type { SQLQueryBindings } from "bun:sqlite";
-import type { Client, Invoice, LineItem, Settings } from "../client/types";
+import type { Client, Invoice, LineItem, Settings, WriteOff } from "../client/types";
 
 export interface User {
   id: number;
@@ -78,11 +78,26 @@ db.run(`
   )
 `);
 
+db.run(`
+  CREATE TABLE IF NOT EXISTS write_offs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    amount REAL NOT NULL,
+    date TEXT NOT NULL,
+    category TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  )
+`);
+
 // Migrations — safe to run on every startup (ALTER TABLE fails silently if column exists)
 for (const migration of [
   `ALTER TABLE settings ADD COLUMN state TEXT NOT NULL DEFAULT 'Ohio'`,
   `ALTER TABLE settings ADD COLUMN federal_tax_rate REAL NOT NULL DEFAULT 25.0`,
   `ALTER TABLE settings ADD COLUMN state_tax_rate REAL NOT NULL DEFAULT 3.99`,
+  `ALTER TABLE settings ADD COLUMN local_tax_rate REAL NOT NULL DEFAULT 2.9`,
 ]) {
   try { db.run(migration); } catch { /* column already exists */ }
 }
@@ -112,7 +127,7 @@ const queries = {
     SET your_name = ?, business_name = ?, business_address = ?,
         default_hourly_rate = ?, ach_account = ?, ach_routing = ?,
         zelle_contact = ?, state = ?, federal_tax_rate = ?,
-        state_tax_rate = ?, updated_at = CURRENT_TIMESTAMP
+        state_tax_rate = ?, local_tax_rate = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = 1
   `),
 
@@ -172,6 +187,26 @@ const queries = {
   deleteLineItemsByInvoice: db.prepare<LineItem, SQLQueryBindings[]>(`
     DELETE FROM line_items WHERE invoice_id = ?
   `),
+
+  getAllWriteOffs: db.prepare<WriteOff[], SQLQueryBindings[]>(`
+    SELECT * FROM write_offs WHERE user_id = ? ORDER BY date DESC, created_at DESC
+  `),
+  getWriteOff: db.prepare<WriteOff, SQLQueryBindings[]>(`
+    SELECT * FROM write_offs WHERE id = ? AND user_id = ?
+  `),
+  createWriteOff: db.prepare<WriteOff, SQLQueryBindings[]>(`
+    INSERT INTO write_offs (user_id, description, amount, date, category)
+    VALUES (?, ?, ?, ?, ?)
+  `),
+  updateWriteOff: db.prepare<WriteOff, SQLQueryBindings[]>(`
+    UPDATE write_offs
+    SET description = ?, amount = ?, date = ?, category = ?,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND user_id = ?
+  `),
+  deleteWriteOff: db.prepare<WriteOff, SQLQueryBindings[]>(`
+    DELETE FROM write_offs WHERE id = ? AND user_id = ?
+  `),
 };
 
 export const dbOperations = {
@@ -201,6 +236,7 @@ export const dbOperations = {
       settings.state ?? "Ohio",
       settings.federal_tax_rate ?? 25.0,
       settings.state_tax_rate ?? 3.99,
+      settings.local_tax_rate ?? 2.9,
     );
     return this.getSettings();
   },
@@ -350,6 +386,55 @@ export const dbOperations = {
   },
   deleteInvoice(id: number, userId: number) {
     const result = queries.deleteInvoice.run(id, userId);
+    return result.changes > 0;
+  },
+
+  getAllWriteOffs(userId: number) {
+    return queries.getAllWriteOffs.all(userId);
+  },
+  getWriteOff(id: number, userId: number) {
+    return queries.getWriteOff.get(id, userId);
+  },
+  createWriteOff(
+    writeOffData: {
+      description: string;
+      amount: number;
+      date: string;
+      category: string;
+    },
+    userId: number,
+  ) {
+    const result = queries.createWriteOff.run(
+      userId,
+      writeOffData.description,
+      writeOffData.amount,
+      writeOffData.date,
+      writeOffData.category,
+    );
+    return this.getWriteOff(result.lastInsertRowid as number, userId);
+  },
+  updateWriteOff(
+    id: number,
+    writeOffData: {
+      description: string;
+      amount: number;
+      date: string;
+      category: string;
+    },
+    userId: number,
+  ) {
+    queries.updateWriteOff.run(
+      writeOffData.description,
+      writeOffData.amount,
+      writeOffData.date,
+      writeOffData.category,
+      id,
+      userId,
+    );
+    return this.getWriteOff(id, userId);
+  },
+  deleteWriteOff(id: number, userId: number) {
+    const result = queries.deleteWriteOff.run(id, userId);
     return result.changes > 0;
   },
 };

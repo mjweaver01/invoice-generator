@@ -41,6 +41,7 @@ export interface Settings {
   state: string;
   federal_tax_rate: number;
   state_tax_rate: number;
+  local_tax_rate: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -48,6 +49,16 @@ export interface Settings {
 export interface User {
   id: number;
   username: string;
+}
+
+export interface WriteOff {
+  id?: number;
+  description: string;
+  amount: number;
+  date: string;
+  category: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface AuthResponse {

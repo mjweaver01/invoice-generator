@@ -176,4 +176,52 @@ export const api = {
     if (!response.ok) throw new Error("Failed to delete client");
     return response.json();
   },
+
+  async getAllWriteOffs() {
+    const response = await authFetch(`${API_BASE}/write-offs`);
+    if (!response.ok) throw new Error("Failed to fetch write-offs");
+    return response.json();
+  },
+
+  async createWriteOff(writeOffData: {
+    description: string;
+    amount: number;
+    date: string;
+    category: string;
+  }) {
+    const response = await authFetch(`${API_BASE}/write-offs`, {
+      method: "POST",
+      body: JSON.stringify(writeOffData),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || "Failed to create write-off");
+    }
+    return response.json();
+  },
+
+  async updateWriteOff(
+    id: number,
+    writeOffData: {
+      description: string;
+      amount: number;
+      date: string;
+      category: string;
+    },
+  ) {
+    const response = await authFetch(`${API_BASE}/write-offs/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(writeOffData),
+    });
+    if (!response.ok) throw new Error("Failed to update write-off");
+    return response.json();
+  },
+
+  async deleteWriteOff(id: number) {
+    const response = await authFetch(`${API_BASE}/write-offs/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Failed to delete write-off");
+    return response.json();
+  },
 };

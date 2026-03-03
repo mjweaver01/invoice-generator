@@ -14,6 +14,7 @@ import PrintableInvoice from "./pages/PrintableInvoice";
 import Settings from "./pages/Settings";
 import Clients from "./pages/Clients";
 import Analytics from "./pages/Analytics";
+import WriteOffs from "./pages/WriteOffs";
 import Login from "./pages/Login";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -106,6 +107,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/write-offs"
+            element={
+              <ProtectedRoute>
+                <WriteOffs />
               </ProtectedRoute>
             }
           />

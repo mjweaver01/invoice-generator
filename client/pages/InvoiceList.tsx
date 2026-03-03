@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { Invoice } from "../types";
 import { formatCurrency, formatDate } from "../utils";
 import { StatusPill } from "../components/StatusPill";
+import Navigation from "../components/Navigation";
 import { api } from "../api";
 
 export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
@@ -71,98 +72,7 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
-        <div className="flex flex-col xs:flex-row justify-between xs:items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
-          <div className="flex gap-3">
-            <button
-              onClick={onLogout}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
-              title="Logout"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="hidden lg:inline">Logout</span>
-            </button>
-            <button
-              onClick={() => navigate("/settings")}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
-              title="Settings"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="hidden lg:inline">Settings</span>
-            </button>
-            <button
-              onClick={() => navigate("/analytics")}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
-              title="Analytics"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-              </svg>
-              <span className="hidden lg:inline">Analytics</span>
-            </button>
-            <button
-              onClick={() => navigate("/clients")}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
-              title="Clients"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-              <span className="hidden lg:inline">Clients</span>
-            </button>
-            <button
-              onClick={() => navigate("/new")}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-3 lg:px-6 rounded-lg transition-colors flex items-center gap-2"
-              title="New Invoice"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="hidden lg:inline">New Invoice</span>
-            </button>
-          </div>
-        </div>
+        <Navigation title="Invoices" onLogout={onLogout} />
 
         <div className="flex flex-col md:flex-row gap-4">
           <input

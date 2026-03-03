@@ -282,6 +282,74 @@ export async function handleApiRoutes(req, url) {
       return new Response(JSON.stringify({ success: true }), { headers });
     }
 
+    // GET /api/write-offs - Get all write-offs
+    if (path === "/api/write-offs" && method === "GET") {
+      const writeOffs = dbOperations.getAllWriteOffs(auth.userId);
+      return new Response(JSON.stringify(writeOffs), { headers });
+    }
+
+    // POST /api/write-offs - Create new write-off
+    if (path === "/api/write-offs" && method === "POST") {
+      const body = await req.json();
+      if (!body.description?.trim()) {
+        return new Response(
+          JSON.stringify({ error: "Description is required" }),
+          { status: 400, headers },
+        );
+      }
+      if (!body.amount || body.amount <= 0) {
+        return new Response(
+          JSON.stringify({ error: "Amount must be greater than 0" }),
+          { status: 400, headers },
+        );
+      }
+      if (!body.date) {
+        return new Response(
+          JSON.stringify({ error: "Date is required" }),
+          { status: 400, headers },
+        );
+      }
+      if (!body.category?.trim()) {
+        return new Response(
+          JSON.stringify({ error: "Category is required" }),
+          { status: 400, headers },
+        );
+      }
+      const writeOff = dbOperations.createWriteOff(body, auth.userId);
+      return new Response(JSON.stringify(writeOff), { status: 201, headers });
+    }
+
+    // PUT /api/write-offs/:id - Update write-off
+    if (path.match(/^\/api\/write-offs\/\d+$/) && method === "PUT") {
+      const id = parseInt(path.split("/").pop()!);
+      const body = await req.json();
+      const writeOff = dbOperations.updateWriteOff(id, body, auth.userId);
+
+      if (!writeOff) {
+        return new Response(JSON.stringify({ error: "Write-off not found" }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      return new Response(JSON.stringify(writeOff), { headers });
+    }
+
+    // DELETE /api/write-offs/:id - Delete write-off
+    if (path.match(/^\/api\/write-offs\/\d+$/) && method === "DELETE") {
+      const id = parseInt(path.split("/").pop()!);
+      const deleted = dbOperations.deleteWriteOff(id, auth.userId);
+
+      if (!deleted) {
+        return new Response(JSON.stringify({ error: "Write-off not found" }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), { headers });
+    }
+
     // Route not found
     return new Response(JSON.stringify({ error: "Not found" }), {
       status: 404,

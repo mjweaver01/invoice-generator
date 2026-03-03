@@ -10,9 +10,10 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import type { Invoice, Settings } from "../types";
+import type { Invoice, Settings, WriteOff } from "../types";
 import { formatCurrency, formatDate } from "../utils";
 import { api } from "../api";
+import Navigation from "../components/Navigation";
 
 type YearOption = number | "all";
 
@@ -26,18 +27,21 @@ export default function Analytics() {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [writeOffs, setWriteOffs] = useState<WriteOff[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<YearOption>("all");
 
   useEffect(() => {
     (async () => {
       try {
-        const [data, settingsData] = await Promise.all([
+        const [data, settingsData, writeOffsData] = await Promise.all([
           api.getAllInvoices(),
           api.getSettings(),
+          api.getAllWriteOffs(),
         ]);
         setInvoices(data);
         setSettings(settingsData);
+        setWriteOffs(writeOffsData);
       } catch (err) {
         console.error("Failed to load analytics data:", err);
       } finally {
@@ -59,6 +63,13 @@ export default function Analytics() {
       (inv) => parseDateParts(inv.invoice_date).year === selectedYear,
     );
   }, [invoices, selectedYear]);
+
+  const filteredWriteOffs = useMemo(() => {
+    if (selectedYear === "all") return writeOffs;
+    return writeOffs.filter(
+      (wo) => parseDateParts(wo.date).year === selectedYear,
+    );
+  }, [writeOffs, selectedYear]);
 
   const paid = useMemo(
     () => filtered.filter((inv) => inv.status === "paid"),
@@ -83,12 +94,20 @@ export default function Analytics() {
     totalInvoiced > 0 ? (totalEarned / totalInvoiced) * 100 : 0;
   const avgInvoice = paid.length > 0 ? totalEarned / paid.length : 0;
 
+  const totalWriteOffsAmount = filteredWriteOffs.reduce(
+    (sum, wo) => sum + wo.amount,
+    0,
+  );
+
+  const taxableIncome = totalEarned - totalWriteOffsAmount;
   const federalRate = settings?.federal_tax_rate ?? 25;
   const stateRate = settings?.state_tax_rate ?? 3.99;
-  const totalTaxRate = federalRate + stateRate;
-  const federalOwed = (totalEarned * federalRate) / 100;
-  const stateOwed = (totalEarned * stateRate) / 100;
-  const totalTaxOwed = federalOwed + stateOwed;
+  const localRate = settings?.local_tax_rate ?? 2.9;
+  const totalTaxRate = federalRate + stateRate + localRate;
+  const federalOwed = (taxableIncome * federalRate) / 100;
+  const stateOwed = (taxableIncome * stateRate) / 100;
+  const localOwed = (taxableIncome * localRate) / 100;
+  const totalTaxOwed = federalOwed + stateOwed + localOwed;
   const takeHome = totalEarned - totalTaxOwed;
   const quarterlyEstimate = totalTaxOwed / 4;
 
@@ -133,6 +152,16 @@ export default function Analytics() {
       .sort(([a], [b]) => Number(a) - Number(b))
       .map(([year, vals]) => ({ name: year, ...vals }));
   }, [filtered, paid, sent, selectedYear]);
+
+  const writeOffsByCategory = useMemo(() => {
+    const byCategory: Record<string, number> = {};
+    filteredWriteOffs.forEach((wo) => {
+      byCategory[wo.category] = (byCategory[wo.category] || 0) + wo.amount;
+    });
+    return Object.entries(byCategory)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [filteredWriteOffs]);
 
   // Top clients by paid revenue
   const topClients = useMemo(() => {
@@ -207,12 +236,12 @@ export default function Analytics() {
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm p-8">
-        <div className="flex flex-col xs:flex-row justify-between xs:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-            <p className="text-gray-500 mt-1">Income overview & insights</p>
-          </div>
-          <div className="flex items-center gap-3">
+        <Navigation
+          title="Analytics"
+          subtitle="Income overview & insights"
+          showNewInvoice={false}
+          actions={
+            <div className="flex items-center gap-3">
             <select
               value={selectedYear}
               onChange={(e) =>
@@ -229,14 +258,9 @@ export default function Analytics() {
                 </option>
               ))}
             </select>
-            <button
-              onClick={() => navigate("/")}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              ← Back to Invoices
-            </button>
           </div>
-        </div>
+          }
+        />
       </div>
 
       {/* KPI Cards */}
@@ -260,13 +284,14 @@ export default function Analytics() {
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm font-medium text-gray-500 mb-1">
-            Collection Rate
+          <p className="text-sm font-medium text-gray-500 mb-1">Write-offs</p>
+          <p className="text-2xl font-bold text-purple-600">
+            {formatCurrency(totalWriteOffsAmount)}
           </p>
-          <p className="text-2xl font-bold text-blue-600">
-            {collectionRate.toFixed(0)}%
+          <p className="text-xs text-gray-400 mt-1">
+            {filteredWriteOffs.length} deduction
+            {filteredWriteOffs.length !== 1 ? "s" : ""}
           </p>
-          <p className="text-xs text-gray-400 mt-1">of total invoiced</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500 mb-1">Avg Invoice</p>
@@ -286,7 +311,7 @@ export default function Analytics() {
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
               Based on {federalRate}% federal + {stateRate}%{" "}
-              {settings?.state ?? "state"} — adjust in{" "}
+              {settings?.state ?? "state"} + {localRate}% local — adjust in{" "}
               <button
                 onClick={() => navigate("/settings")}
                 className="text-blue-600 hover:underline"
@@ -310,50 +335,77 @@ export default function Analytics() {
             No paid income to calculate taxes on.
           </p>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-red-50 rounded-lg p-4">
-              <p className="text-xs font-medium text-red-600 mb-1">
-                Federal Tax
-              </p>
-              <p className="text-xl font-bold text-red-700">
-                {formatCurrency(federalOwed)}
-              </p>
-              <p className="text-xs text-red-400 mt-0.5">
-                {federalRate}% of earned
-              </p>
+          <>
+            {totalWriteOffsAmount > 0 && (
+              <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                <div className="flex items-center justify-between text-sm">
+                  <div>
+                    <span className="font-medium text-purple-900">
+                      Taxable Income
+                    </span>
+                    <p className="text-xs text-purple-600 mt-0.5">
+                      {formatCurrency(totalEarned)} earned −{" "}
+                      {formatCurrency(totalWriteOffsAmount)} write-offs
+                    </p>
+                  </div>
+                  <span className="text-lg font-bold text-purple-900">
+                    {formatCurrency(taxableIncome)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-red-50 rounded-lg p-4">
+                <p className="text-xs font-medium text-red-600 mb-1">
+                  Federal Tax
+                </p>
+                <p className="text-xl font-bold text-red-700">
+                  {formatCurrency(federalOwed)}
+                </p>
+                <p className="text-xs text-red-400 mt-0.5">
+                  {federalRate}% of taxable
+                </p>
+              </div>
+              <div className="bg-orange-50 rounded-lg p-4">
+                <p className="text-xs font-medium text-orange-600 mb-1">
+                  {settings?.state ?? "State"} Tax
+                </p>
+                <p className="text-xl font-bold text-orange-700">
+                  {formatCurrency(stateOwed)}
+                </p>
+                <p className="text-xs text-orange-400 mt-0.5">
+                  {stateRate}% of taxable
+                </p>
+              </div>
+              <div className="bg-yellow-50 rounded-lg p-4">
+                <p className="text-xs font-medium text-yellow-600 mb-1">
+                  Local Tax
+                </p>
+                <p className="text-xl font-bold text-yellow-700">
+                  {formatCurrency(localOwed)}
+                </p>
+                <p className="text-xs text-yellow-400 mt-0.5">
+                  {localRate}% of taxable
+                </p>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4">
+                <p className="text-xs font-medium text-green-600 mb-1">
+                  Take-Home
+                </p>
+                <p className="text-xl font-bold text-green-700">
+                  {formatCurrency(takeHome)}
+                </p>
+                <p className="text-xs text-green-400 mt-0.5">after taxes</p>
+              </div>
             </div>
-            <div className="bg-orange-50 rounded-lg p-4">
-              <p className="text-xs font-medium text-orange-600 mb-1">
-                {settings?.state ?? "State"} Tax
-              </p>
-              <p className="text-xl font-bold text-orange-700">
-                {formatCurrency(stateOwed)}
-              </p>
-              <p className="text-xs text-orange-400 mt-0.5">
-                {stateRate}% of earned
-              </p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-xs font-medium text-gray-600 mb-1">
-                Total Set Aside
-              </p>
-              <p className="text-xl font-bold text-gray-800">
+            <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+              <span className="text-sm text-gray-500">Total Tax Set Aside</span>
+              <span className="text-lg font-bold text-gray-800">
                 {formatCurrency(totalTaxOwed)}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {totalTaxRate.toFixed(1)}% combined
-              </p>
+              </span>
             </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <p className="text-xs font-medium text-green-600 mb-1">
-                Take-Home
-              </p>
-              <p className="text-xl font-bold text-green-700">
-                {formatCurrency(takeHome)}
-              </p>
-              <p className="text-xs text-green-400 mt-0.5">after taxes</p>
-            </div>
-          </div>
+          </>
         )}
 
         {totalEarned > 0 && (
@@ -384,6 +436,57 @@ export default function Analytics() {
           </div>
         )}
       </div>
+
+      {/* Write-offs Breakdown */}
+      {writeOffsByCategory.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Write-offs by Category
+            </h2>
+            <button
+              onClick={() => navigate("/write-offs")}
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Manage →
+            </button>
+          </div>
+          <div className="space-y-3">
+            {writeOffsByCategory.map(({ category, amount }) => {
+              const pct =
+                totalWriteOffsAmount > 0
+                  ? (amount / totalWriteOffsAmount) * 100
+                  : 0;
+              return (
+                <div key={category}>
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-sm font-medium text-gray-800">
+                      {category}
+                    </span>
+                    <span className="text-sm font-semibold text-purple-700 ml-2">
+                      {formatCurrency(amount)}
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-purple-500 rounded-full"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between text-sm">
+            <span className="text-gray-500">
+              Total Write-offs ({filteredWriteOffs.length})
+            </span>
+            <span className="font-bold text-gray-900">
+              {formatCurrency(totalWriteOffsAmount)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Bar Chart */}
       <div className="bg-white rounded-xl shadow-sm p-6">
