@@ -45,11 +45,8 @@ export default function PrintableInvoice() {
 
   const lineItems = fullInvoice.line_items || [];
   const settings = fullInvoice.settings || {};
-  const computedSubtotal = lineItems.reduce((total, item) => {
-    return total + (parseFloat(String(item.hours)) || 0) * fullInvoice.hourly_rate;
-  }, 0);
-  // Fall back to stored total if line items are missing (e.g. status was changed from the list view)
-  const subtotal = computedSubtotal > 0 ? computedSubtotal : (fullInvoice.total || 0);
+  const rate = fullInvoice.hourly_rate ?? 0;
+  const subtotal = fullInvoice.total || 0;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -171,30 +168,43 @@ export default function PrintableInvoice() {
               <th className="text-left py-3 text-sm font-semibold text-gray-700 uppercase">
                 Description
               </th>
-              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
-                Hours
-              </th>
-              <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
-                Rate
-              </th>
+              {lineItems.length > 0 && (
+                <>
+                  <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
+                    Hours
+                  </th>
+                  <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
+                    Rate
+                  </th>
+                </>
+              )}
               <th className="text-right py-3 text-sm font-semibold text-gray-700 uppercase">
                 Amount
               </th>
             </tr>
           </thead>
           <tbody>
-            {lineItems.map((item, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-4 text-gray-900">{item.description}</td>
-                <td className="py-4 text-right text-gray-900">{item.hours}</td>
-                <td className="py-4 text-right text-gray-900">
-                  {formatCurrency(fullInvoice.hourly_rate)}
-                </td>
+            {lineItems.length > 0 ? (
+              lineItems.map((item, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="py-4 text-gray-900">{item.description}</td>
+                  <td className="py-4 text-right text-gray-900">{item.hours}</td>
+                  <td className="py-4 text-right text-gray-900">
+                    {formatCurrency(rate)}
+                  </td>
+                  <td className="py-4 text-right text-gray-900 font-medium">
+                    {formatCurrency((parseFloat(String(item.hours)) || 0) * rate)}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr className="border-b border-gray-200">
+                <td className="py-4 text-gray-900">Professional Services</td>
                 <td className="py-4 text-right text-gray-900 font-medium">
-                  {formatCurrency(item.hours * fullInvoice.hourly_rate)}
+                  {formatCurrency(subtotal)}
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
 

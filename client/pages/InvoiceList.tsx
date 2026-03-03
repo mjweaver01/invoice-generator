@@ -47,12 +47,9 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   });
 
   const handleStatusChange = async (invoiceId: number, newStatus: string) => {
-    const invoice = invoices.find((inv) => inv.id === invoiceId);
-    if (!invoice) return;
-
     setUpdatingStatusId(invoiceId);
     try {
-      await api.updateInvoice(invoiceId, { ...invoice, status: newStatus });
+      await api.updateInvoiceStatus(invoiceId, newStatus);
       await loadInvoices(false);
     } catch (error) {
       console.error("Failed to update invoice status:", error);

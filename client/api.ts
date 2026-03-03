@@ -122,6 +122,15 @@ export const api = {
     return response.json();
   },
 
+  async updateInvoiceStatus(id: number, status: string) {
+    const response = await authFetch(`${API_BASE}/invoices/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Failed to update invoice status");
+    return response.json();
+  },
+
   async updateInvoice(id, invoiceData) {
     const response = await authFetch(`${API_BASE}/invoices/${id}`, {
       method: "PUT",

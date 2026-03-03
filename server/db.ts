@@ -154,6 +154,10 @@ const queries = {
         updated_at = CURRENT_TIMESTAMP
     WHERE id = ? AND user_id = ?
   `),
+  updateInvoiceStatus: db.prepare<Invoice, SQLQueryBindings[]>(`
+    UPDATE invoices SET status = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND user_id = ?
+  `),
   deleteInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     DELETE FROM invoices WHERE id = ? AND user_id = ?
   `),
@@ -340,6 +344,9 @@ export const dbOperations = {
       }
     }
     return this.getInvoice(id, userId);
+  },
+  updateInvoiceStatus(id: number, status: string, userId: number) {
+    queries.updateInvoiceStatus.run(status, id, userId);
   },
   deleteInvoice(id: number, userId: number) {
     const result = queries.deleteInvoice.run(id, userId);

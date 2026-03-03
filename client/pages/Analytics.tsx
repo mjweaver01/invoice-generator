@@ -16,14 +16,18 @@ import { api } from "../api";
 
 type YearOption = number | "all";
 
+/** Parse YYYY-MM-DD without timezone shift */
+function parseDateParts(dateStr: string): { year: number; month: number; day: number } {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return { year: year!, month: month!, day: day! };
+}
+
 export default function Analytics() {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState<YearOption>(
-    new Date().getFullYear(),
-  );
+  const [selectedYear, setSelectedYear] = useState<YearOption>("all");
 
   useEffect(() => {
     (async () => {
@@ -44,7 +48,7 @@ export default function Analytics() {
 
   const availableYears = useMemo(() => {
     const years = new Set(
-      invoices.map((inv) => new Date(inv.invoice_date).getFullYear()),
+      invoices.map((inv) => parseDateParts(inv.invoice_date).year),
     );
     return Array.from(years).sort((a, b) => b - a);
   }, [invoices]);
@@ -52,7 +56,7 @@ export default function Analytics() {
   const filtered = useMemo(() => {
     if (selectedYear === "all") return invoices;
     return invoices.filter(
-      (inv) => new Date(inv.invoice_date).getFullYear() === selectedYear,
+      (inv) => parseDateParts(inv.invoice_date).year === selectedYear,
     );
   }, [invoices, selectedYear]);
 
@@ -108,10 +112,10 @@ export default function Analytics() {
     if (selectedYear !== "all") {
       return MONTH_NAMES.map((name, i) => {
         const monthPaid = paid
-          .filter((inv) => new Date(inv.invoice_date).getMonth() === i)
+          .filter((inv) => parseDateParts(inv.invoice_date).month - 1 === i)
           .reduce((sum, inv) => sum + (inv.total || 0), 0);
         const monthSent = sent
-          .filter((inv) => new Date(inv.invoice_date).getMonth() === i)
+          .filter((inv) => parseDateParts(inv.invoice_date).month - 1 === i)
           .reduce((sum, inv) => sum + (inv.total || 0), 0);
         return { name, paid: monthPaid, outstanding: monthSent };
       });
@@ -120,7 +124,7 @@ export default function Analytics() {
     // All years: group by year
     const byYear: Record<number, { paid: number; outstanding: number }> = {};
     filtered.forEach((inv) => {
-      const y = new Date(inv.invoice_date).getFullYear();
+      const y = parseDateParts(inv.invoice_date).year;
       if (!byYear[y]) byYear[y] = { paid: 0, outstanding: 0 };
       if (inv.status === "paid") byYear[y]!.paid += inv.total || 0;
       if (inv.status === "sent") byYear[y]!.outstanding += inv.total || 0;

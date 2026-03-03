@@ -58,6 +58,9 @@ const server = Bun.serve({
       PUT: async (req) => handleApiRoutes(req, new URL(req.url)),
       DELETE: async (req) => handleApiRoutes(req, new URL(req.url)),
     },
+    "/api/invoices/:id/status": {
+      PATCH: async (req) => handleApiRoutes(req, new URL(req.url)),
+    },
 
     // Catch-all route - handles static files and client-side routing
     "/*": async (req: Request) => {

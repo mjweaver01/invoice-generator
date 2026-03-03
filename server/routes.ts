@@ -239,6 +239,18 @@ export async function handleApiRoutes(req, url) {
       });
     }
 
+    // PATCH /api/invoices/:id/status - Update invoice status only
+    if (path.match(/^\/api\/invoices\/\d+\/status$/) && method === "PATCH") {
+      const id = parseInt(path.split("/")[3]!);
+      const body = await req.json();
+      const invoice = dbOperations.getInvoice(id, auth.userId);
+      if (!invoice) {
+        return new Response(JSON.stringify({ error: "Invoice not found" }), { status: 404, headers });
+      }
+      dbOperations.updateInvoiceStatus(id, body.status, auth.userId);
+      return new Response(JSON.stringify({ success: true }), { headers });
+    }
+
     // PUT /api/invoices/:id - Update invoice
     if (path.match(/^\/api\/invoices\/\d+$/) && method === "PUT") {
       const id = parseInt(path.split("/").pop()!);
