@@ -151,7 +151,8 @@ const queries = {
   `),
 
   getAllInvoices: db.prepare<Invoice[], SQLQueryBindings[]>(`
-    SELECT * FROM invoices WHERE user_id = ? ORDER BY created_at DESC
+    SELECT i.*, COALESCE((SELECT SUM(li.hours) FROM line_items li WHERE li.invoice_id = i.id), 0) AS total_hours
+    FROM invoices i WHERE i.user_id = ? ORDER BY i.created_at DESC
   `),
   getInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     SELECT * FROM invoices WHERE id = ? AND user_id = ?

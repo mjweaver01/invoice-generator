@@ -8,6 +8,7 @@ export interface Invoice {
   hourly_rate: number;
   status: "draft" | "sent" | "paid";
   total: number;
+  total_hours?: number;
   created_at?: string;
   updated_at?: string;
   line_items?: LineItem[];

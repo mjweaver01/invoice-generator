@@ -70,7 +70,7 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6">
       <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
         <Navigation title="Invoices" onLogout={onLogout} />
 
@@ -133,50 +133,64 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
           filteredInvoices.map((invoice) => (
             <div
               key={invoice.id}
-              className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      {invoice.invoice_number}
-                    </h3>
-                    <StatusPill
-                      status={invoice.status}
-                      onStatusChange={(newStatus) =>
-                        handleStatusChange(invoice.id, newStatus)
-                      }
-                      loading={updatingStatusId === invoice.id}
-                    />
-                  </div>
-                  <p className="text-gray-600 text-lg mb-1">
-                    {invoice.client_name}
-                  </p>
-                  <div className="flex gap-4 text-sm text-gray-500">
-                    <span>Date: {formatDate(invoice.invoice_date)}</span>
-                    {invoice.due_date && (
-                      <span>Due: {formatDate(invoice.due_date)}</span>
-                    )}
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 sm:gap-y-3">
+                {/* Invoice + Status: row 1 left */}
+                <div className="flex items-center gap-3 order-1 sm:col-start-1 sm:row-start-1 sm:items-start">
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {invoice.invoice_number}
+                  </h3>
+                  <StatusPill
+                    status={invoice.status}
+                    onStatusChange={(newStatus) =>
+                      handleStatusChange(invoice.id, newStatus)
+                    }
+                    loading={updatingStatusId === invoice.id}
+                  />
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-gray-900 mb-3">
+                {/* Client + Date: row 2 left on desktop, order 2 on mobile */}
+                <div className="flex flex-col items-start text-sm my-2 sm:m-0 sm:text-base order-2 sm:col-start-1 sm:row-start-2">
+                  <span className="text-gray-700 font-medium">
+                    {invoice.client_name}
+                  </span>
+                  <span className="text-gray-500">
+                    {formatDate(invoice.invoice_date)}
+                  </span>
+                  {invoice.due_date && (
+                    <>
+                      <span className="text-gray-300">·</span>
+                      <span className="text-gray-500">
+                        Due {formatDate(invoice.due_date)}
+                      </span>
+                    </>
+                  )}
+                </div>
+                {/* Calc + Price: row 1 right on desktop, order 3 on mobile */}
+                <div className="flex flex-col mb-2 sm:m-0 order-3 sm:col-start-2 sm:row-start-1 sm:justify-self-end sm:items-end">
+                  <span className="text-sm text-gray-400">
+                    {invoice.total_hours != null
+                      ? `${invoice.total_hours} hrs × ${formatCurrency(invoice.hourly_rate)}/hr`
+                      : `${formatCurrency(invoice.hourly_rate)}/hr`}
+                  </span>
+                  <div className="text-2xl font-bold text-gray-900">
                     {formatCurrency(invoice.total || 0)}
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => navigate(`/edit/${invoice.id}`)}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => navigate(`/print/${invoice.id}`)}
-                      className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
-                    >
-                      Print
-                    </button>
-                  </div>
+                </div>
+                {/* Buttons: row 2 right on desktop, order 4 on mobile */}
+                <div className="flex gap-2 order-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end">
+                  <button
+                    onClick={() => navigate(`/edit/${invoice.id}`)}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => navigate(`/print/${invoice.id}`)}
+                    className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
+                  >
+                    Print
+                  </button>
                 </div>
               </div>
             </div>
