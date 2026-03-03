@@ -34,7 +34,7 @@ export default function Navigation({
         {showNewInvoice && (
             <button
               onClick={() => navigate("/new")}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
               title="New Invoice"
             >
               <svg
@@ -150,7 +150,7 @@ export default function Navigation({
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-indigo-600"
+                    className="h-5 w-5 text-orange-600"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >

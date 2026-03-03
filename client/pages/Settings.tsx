@@ -20,7 +20,7 @@ const STATE_TAX_RATES: Record<string, number> = {
   "Washington D.C.": 8.5,
 };
 
-export default function Settings() {
+export default function Settings({ onLogout }: { onLogout?: () => void }) {
   const navigate = useNavigate();
   const [settings, setSettings] = useState({
     your_name: "",
@@ -77,7 +77,7 @@ export default function Settings() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-sm p-8">
-        <Navigation title="Settings" showNewInvoice={false} />
+        <Navigation title="Settings" showNewInvoice={false} onLogout={onLogout} />
 
         {success && (
           <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">

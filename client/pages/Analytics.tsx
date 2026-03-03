@@ -23,7 +23,7 @@ function parseDateParts(dateStr: string): { year: number; month: number; day: nu
   return { year: year!, month: month!, day: day! };
 }
 
-export default function Analytics() {
+export default function Analytics({ onLogout }: { onLogout?: () => void }) {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -240,6 +240,7 @@ export default function Analytics() {
           title="Analytics"
           subtitle="Income overview & insights"
           showNewInvoice={false}
+          onLogout={onLogout}
           actions={
             <div className="flex items-center gap-3">
             <select

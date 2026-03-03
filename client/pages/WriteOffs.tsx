@@ -15,7 +15,7 @@ const CATEGORIES = [
   "Other",
 ];
 
-export default function WriteOffs() {
+export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
   const navigate = useNavigate();
   const [writeOffs, setWriteOffs] = useState<WriteOff[]>([]);
   const [editingWriteOff, setEditingWriteOff] = useState<number | null>(null);
@@ -152,6 +152,7 @@ export default function WriteOffs() {
         <Navigation
           title="Write-offs"
           showNewInvoice={false}
+          onLogout={onLogout}
           actions={
             <button
               onClick={() => {
@@ -164,7 +165,7 @@ export default function WriteOffs() {
                   category: "Other",
                 });
               }}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
               title="New Write-off"
             >
               <svg
@@ -179,13 +180,13 @@ export default function WriteOffs() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="hidden lg:inline">New Write-off</span>
+              <span className="hidden sm:inline">New Write-off</span>
             </button>
           }
         />
 
         {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded-lg mb-6">
             {successMessage}
           </div>
         )}
@@ -301,7 +302,7 @@ export default function WriteOffs() {
             <p className="text-gray-500 mb-4">No write-offs yet.</p>
             <button
               onClick={() => setShowNewWriteOffForm(true)}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+              className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
             >
               Add your first write-off
             </button>
@@ -437,7 +438,7 @@ export default function WriteOffs() {
                           </span>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span className="font-semibold text-green-600 text-lg">
+                          <span className="font-semibold text-orange-600 text-lg">
                             {formatCurrency(writeOff.amount)}
                           </span>
                           <span>{formatDate(writeOff.date, "short")}</span>

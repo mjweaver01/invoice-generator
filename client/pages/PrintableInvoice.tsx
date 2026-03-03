@@ -61,7 +61,7 @@ export default function PrintableInvoice() {
         <button
           onClick={handlePrint}
           title="Print / Save as PDF"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 sm:px-6 sm:py-3 rounded-lg transition-colors flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 px-3 sm:px-6 rounded-lg transition-colors flex items-center gap-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -90,7 +90,7 @@ export default function App() {
             path="/settings"
             element={
               <ProtectedRoute>
-                <Settings />
+                <Settings onLogout={handleLogout} />
               </ProtectedRoute>
             }
           />
@@ -98,7 +98,7 @@ export default function App() {
             path="/clients"
             element={
               <ProtectedRoute>
-                <Clients />
+                <Clients onLogout={handleLogout} />
               </ProtectedRoute>
             }
           />
@@ -106,7 +106,7 @@ export default function App() {
             path="/analytics"
             element={
               <ProtectedRoute>
-                <Analytics />
+                <Analytics onLogout={handleLogout} />
               </ProtectedRoute>
             }
           />
@@ -114,7 +114,7 @@ export default function App() {
             path="/write-offs"
             element={
               <ProtectedRoute>
-                <WriteOffs />
+                <WriteOffs onLogout={handleLogout} />
               </ProtectedRoute>
             }
           />

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import Navigation from "../components/Navigation";
 
-export default function Clients() {
+export default function Clients({ onLogout }: { onLogout?: () => void }) {
   const navigate = useNavigate();
   const [clients, setClients] = useState<
     Array<{ id: number; name: string; address: string | null }>
@@ -108,6 +108,7 @@ export default function Clients() {
         <Navigation
           title="Clients"
           showNewInvoice={false}
+          onLogout={onLogout}
           actions={
             <button
               onClick={() => {
@@ -115,7 +116,7 @@ export default function Clients() {
                 setNewClientError(null);
                 setNewClientData({ name: "", address: "" });
               }}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
               title="New Client"
             >
               <svg
@@ -130,7 +131,7 @@ export default function Clients() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="hidden lg:inline">New Client</span>
+              <span className="hidden sm:inline">New Client</span>
             </button>
           }
         />
