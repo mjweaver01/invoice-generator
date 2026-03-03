@@ -8,6 +8,8 @@ A modern invoice generation application built with Bun, React, Tailwind CSS, and
 - 💰 Automatic price calculation based on hourly rate
 - 👥 Client management with autocomplete and addresses
 - 📄 Print to PDF using browser's native print dialog
+- 💸 Business write-offs tracking with category management and tax deductions
+- 📊 Analytics dashboard with revenue insights, tax estimates, and top clients
 - ⚙️ Global settings for business info and payment methods
 - 🔐 User authentication with JWT (username/password)
 - 🗄️ SQLite database for persistent storage
