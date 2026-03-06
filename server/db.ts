@@ -146,6 +146,11 @@ const queries = {
   updateClient: db.prepare<Client, SQLQueryBindings[]>(`
     UPDATE clients SET name = ?, address = ? WHERE id = ? AND user_id = ?
   `),
+  updateInvoicesByClientName: db.prepare<Invoice, SQLQueryBindings[]>(`
+    UPDATE invoices
+    SET client_name = ?, client_address = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE client_name = ? AND user_id = ?
+  `),
   deleteClient: db.prepare<Client, SQLQueryBindings[]>(`
     DELETE FROM clients WHERE id = ? AND user_id = ?
   `),
@@ -267,15 +272,24 @@ export const dbOperations = {
   },
   updateClient(
     id: number,
-    clientData: { name: string; address?: string | null },
+    clientData: { name: string; address?: string | null; updateExistingInvoices?: boolean },
     userId: number,
   ) {
+    const existing = this.getClient(id, userId);
     queries.updateClient.run(
       clientData.name,
       clientData.address ?? null,
       id,
       userId,
     );
+    if (clientData.updateExistingInvoices && existing) {
+      queries.updateInvoicesByClientName.run(
+        clientData.name,
+        clientData.address ?? null,
+        existing.name,
+        userId,
+      );
+    }
     return this.getClient(id, userId);
   },
   deleteClient(id: number, userId: number) {

@@ -160,7 +160,7 @@ export const api = {
     return response.json();
   },
 
-  async updateClient(id, clientData) {
+  async updateClient(id: number, clientData: { name: string; address?: string; updateExistingInvoices?: boolean }) {
     const response = await authFetch(`${API_BASE}/clients/${id}`, {
       method: "PUT",
       body: JSON.stringify(clientData),

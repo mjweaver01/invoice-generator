@@ -12,6 +12,7 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
   const [editClientData, setEditClientData] = useState({
     name: "",
     address: "",
+    updateExistingInvoices: true,
   });
   const [loading, setLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
@@ -43,12 +44,13 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
     setEditClientData({
       name: client.name,
       address: client.address || "",
+      updateExistingInvoices: true,
     });
   };
 
   const handleCancelEdit = () => {
     setEditingClient(null);
-    setEditClientData({ name: "", address: "" });
+    setEditClientData({ name: "", address: "", updateExistingInvoices: true });
   };
 
   const handleSaveClient = async (id: number) => {
@@ -59,7 +61,10 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
         clients.map((c) => (c.id === id ? { ...c, ...editClientData } : c)),
       );
       setEditingClient(null);
-      setSuccessMessage("Client updated successfully!");
+      const msg = editClientData.updateExistingInvoices
+        ? "Client updated — existing invoices updated too."
+        : "Client updated successfully!";
+      setSuccessMessage(msg);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("Failed to update client:", err);
@@ -258,6 +263,22 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y placeholder:text-gray-400"
                       />
                     </div>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={editClientData.updateExistingInvoices}
+                        onChange={(e) =>
+                          setEditClientData({
+                            ...editClientData,
+                            updateExistingInvoices: e.target.checked,
+                          })
+                        }
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-600">
+                        Update existing invoices with new client info
+                      </span>
+                    </label>
                     <div className="flex gap-2">
                       <button
                         type="button"
