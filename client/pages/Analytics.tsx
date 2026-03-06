@@ -286,7 +286,7 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500 mb-1">Write-offs</p>
-          <p className="text-2xl font-bold text-purple-600">
+          <p className="text-2xl font-bold text-indigo-600">
             {formatCurrency(totalWriteOffsAmount)}
           </p>
           <p className="text-xs text-gray-400 mt-1">
@@ -338,18 +338,18 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
         ) : (
           <>
             {totalWriteOffsAmount > 0 && (
-              <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
+              <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
                 <div className="flex items-center justify-between text-sm">
                   <div>
-                    <span className="font-medium text-purple-900">
+                    <span className="font-medium text-indigo-900">
                       Taxable Income
                     </span>
-                    <p className="text-xs text-purple-600 mt-0.5">
+                    <p className="text-xs text-indigo-600 mt-0.5">
                       {formatCurrency(totalEarned)} earned −{" "}
                       {formatCurrency(totalWriteOffsAmount)} write-offs
                     </p>
                   </div>
-                  <span className="text-lg font-bold text-purple-900">
+                  <span className="text-lg font-bold text-indigo-900">
                     {formatCurrency(taxableIncome)}
                   </span>
                 </div>
@@ -464,13 +464,13 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
                     <span className="text-sm font-medium text-gray-800">
                       {category}
                     </span>
-                    <span className="text-sm font-semibold text-purple-700 ml-2">
+                    <span className="text-sm font-semibold text-indigo-700 ml-2">
                       {formatCurrency(amount)}
                     </span>
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-purple-500 rounded-full"
+                      className="h-full bg-indigo-500 rounded-full"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

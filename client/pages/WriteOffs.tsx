@@ -165,7 +165,7 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
                   category: "Other",
                 });
               }}
-              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
               title="New Write-off"
             >
               <svg
@@ -186,7 +186,7 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
         />
 
         {successMessage && (
-          <div className="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg mb-6">
             {successMessage}
           </div>
         )}
@@ -302,7 +302,7 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
             <p className="text-gray-500 mb-4">No write-offs yet.</p>
             <button
               onClick={() => setShowNewWriteOffForm(true)}
-              className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
             >
               Add your first write-off
             </button>
@@ -438,7 +438,7 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
                           </span>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span className="font-semibold text-orange-600 text-lg">
+                          <span className="font-semibold text-purple-600 text-lg">
                             {formatCurrency(writeOff.amount)}
                           </span>
                           <span>{formatDate(writeOff.date, "short")}</span>
