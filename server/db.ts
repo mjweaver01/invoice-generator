@@ -300,6 +300,14 @@ export const dbOperations = {
   getAllInvoices(userId: number) {
     return queries.getAllInvoices.all(userId);
   },
+  getNextInvoiceNumber(userId: number) {
+    const invoices = this.getAllInvoices(userId);
+    const maxNumber = invoices.reduce((max, invoice) => {
+      const match = invoice.invoice_number.match(/INV-(\d+)/);
+      return match ? Math.max(max, parseInt(match[1]!, 10)) : max;
+    }, 0);
+    return `INV-${String(maxNumber + 1).padStart(3, "0")}`;
+  },
   getInvoice(id: number, userId: number) {
     const invoice = queries.getInvoice.get(id, userId);
     if (!invoice) return null;
@@ -402,6 +410,29 @@ export const dbOperations = {
   deleteInvoice(id: number, userId: number) {
     const result = queries.deleteInvoice.run(id, userId);
     return result.changes > 0;
+  },
+  duplicateInvoice(id: number, userId: number) {
+    const sourceInvoice = this.getInvoice(id, userId);
+    if (!sourceInvoice) return null;
+
+    const duplicatedInvoice = this.createInvoice(
+      {
+        invoice_number: this.getNextInvoiceNumber(userId),
+        client_name: sourceInvoice.client_name,
+        client_address: sourceInvoice.client_address ?? "",
+        invoice_date: new Date().toISOString().split("T")[0],
+        hourly_rate: sourceInvoice.hourly_rate,
+        status: "draft",
+        total: sourceInvoice.total ?? 0,
+        line_items: (sourceInvoice.line_items ?? []).map((item) => ({
+          description: item.description,
+          hours: item.hours,
+        })),
+      },
+      userId,
+    );
+
+    return duplicatedInvoice;
   },
 
   getAllWriteOffs(userId: number) {

@@ -62,6 +62,9 @@ const server = Bun.serve({
     "/api/invoices/:id/status": {
       PATCH: async (req) => handleApiRoutes(req, new URL(req.url)),
     },
+    "/api/invoices/:id/duplicate": {
+      POST: async (req) => handleApiRoutes(req, new URL(req.url)),
+    },
     "/api/write-offs": {
       GET: async (req) => handleApiRoutes(req, new URL(req.url)),
       POST: async (req) => handleApiRoutes(req, new URL(req.url)),

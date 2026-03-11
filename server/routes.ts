@@ -267,6 +267,21 @@ export async function handleApiRoutes(req, url) {
       return new Response(JSON.stringify(invoice), { headers });
     }
 
+    // POST /api/invoices/:id/duplicate - Duplicate an invoice as a draft dated today
+    if (path.match(/^\/api\/invoices\/\d+\/duplicate$/) && method === "POST") {
+      const id = parseInt(path.split("/")[3]!);
+      const invoice = dbOperations.duplicateInvoice(id, auth.userId);
+
+      if (!invoice) {
+        return new Response(JSON.stringify({ error: "Invoice not found" }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      return new Response(JSON.stringify(invoice), { status: 201, headers });
+    }
+
     // DELETE /api/invoices/:id - Delete invoice
     if (path.match(/^\/api\/invoices\/\d+$/) && method === "DELETE") {
       const id = parseInt(path.split("/").pop()!);

@@ -140,6 +140,14 @@ export const api = {
     return response.json();
   },
 
+  async duplicateInvoice(id: number) {
+    const response = await authFetch(`${API_BASE}/invoices/${id}/duplicate`, {
+      method: "POST",
+    });
+    if (!response.ok) throw new Error("Failed to duplicate invoice");
+    return response.json();
+  },
+
   async deleteInvoice(id) {
     const response = await authFetch(`${API_BASE}/invoices/${id}`, {
       method: "DELETE",

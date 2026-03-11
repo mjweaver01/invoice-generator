@@ -14,6 +14,7 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
   const [updatingStatusId, setUpdatingStatusId] = useState<number | null>(null);
+  const [duplicatingInvoiceId, setDuplicatingInvoiceId] = useState<number | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -67,6 +68,18 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
       console.error("Failed to delete invoice:", error);
     }
     setDeleteConfirmId(null);
+  };
+
+  const handleDuplicateInvoice = async (invoiceId: number) => {
+    setDuplicatingInvoiceId(invoiceId);
+    try {
+      const duplicatedInvoice = await api.duplicateInvoice(invoiceId);
+      navigate(`/edit/${duplicatedInvoice.id}`);
+    } catch (error) {
+      console.error("Failed to duplicate invoice:", error);
+    } finally {
+      setDuplicatingInvoiceId(null);
+    }
   };
 
   return (
@@ -179,6 +192,13 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                 </div>
                 {/* Buttons: row 2 right on desktop, order 4 on mobile */}
                 <div className="flex gap-2 order-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end">
+                  <button
+                    onClick={() => handleDuplicateInvoice(invoice.id)}
+                    disabled={duplicatingInvoiceId === invoice.id}
+                    className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {duplicatingInvoiceId === invoice.id ? "Duplicating..." : "Duplicate"}
+                  </button>
                   <button
                     onClick={() => navigate(`/edit/${invoice.id}`)}
                     className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
