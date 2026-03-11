@@ -269,14 +269,35 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm font-medium text-gray-500 mb-1">Total Earned</p>
+          <p className="text-sm font-medium text-gray-500 mb-1">Net Profit</p>
+          <p className="text-2xl font-bold text-emerald-600">
+            {formatCurrency(takeHome)}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            {formatCurrency(totalEarned)} gross - {formatCurrency(totalTaxOwed)}{" "}
+            est tax
+          </p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <p className="text-sm font-medium text-gray-500 mb-1">Gross Profit</p>
           <p className="text-2xl font-bold text-green-600">
             {formatCurrency(totalEarned)}
           </p>
           <p className="text-xs text-gray-400 mt-1">
             {paid.length} paid invoice{paid.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <p className="text-sm font-medium text-gray-500 mb-1">
+            Total Tax Set Aside
+          </p>
+          <p className="text-2xl font-bold text-rose-600">
+            {formatCurrency(totalTaxOwed)}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            estimated federal + state + local
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
