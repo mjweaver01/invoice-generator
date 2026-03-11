@@ -1,6 +1,12 @@
 import { Database } from "bun:sqlite";
 import type { SQLQueryBindings } from "bun:sqlite";
-import type { Client, Invoice, LineItem, Settings, WriteOff } from "../client/types";
+import type {
+  Client,
+  Invoice,
+  LineItem,
+  Settings,
+  WriteOff,
+} from "../client/types";
 
 export interface User {
   id: number;
@@ -99,7 +105,11 @@ for (const migration of [
   `ALTER TABLE settings ADD COLUMN state_tax_rate REAL NOT NULL DEFAULT 3.99`,
   `ALTER TABLE settings ADD COLUMN local_tax_rate REAL NOT NULL DEFAULT 2.9`,
 ]) {
-  try { db.run(migration); } catch { /* column already exists */ }
+  try {
+    db.run(migration);
+  } catch {
+    /* column already exists */
+  }
 }
 
 db.run(`
@@ -272,7 +282,11 @@ export const dbOperations = {
   },
   updateClient(
     id: number,
-    clientData: { name: string; address?: string | null; updateExistingInvoices?: boolean },
+    clientData: {
+      name: string;
+      address?: string | null;
+      updateExistingInvoices?: boolean;
+    },
     userId: number,
   ) {
     const existing = this.getClient(id, userId);

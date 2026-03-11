@@ -188,12 +188,16 @@ export default function PrintableInvoice() {
               lineItems.map((item, index) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-4 text-gray-900">{item.description}</td>
-                  <td className="py-4 text-right text-gray-900">{item.hours}</td>
+                  <td className="py-4 text-right text-gray-900">
+                    {item.hours}
+                  </td>
                   <td className="py-4 text-right text-gray-900">
                     {formatCurrency(rate)}
                   </td>
                   <td className="py-4 text-right text-gray-900 font-medium">
-                    {formatCurrency((parseFloat(String(item.hours)) || 0) * rate)}
+                    {formatCurrency(
+                      (parseFloat(String(item.hours)) || 0) * rate,
+                    )}
                   </td>
                 </tr>
               ))

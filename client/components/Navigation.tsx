@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface NavigationProps {
@@ -23,37 +23,35 @@ export default function Navigation({
     <div className="flex justify-between items-center mb-6 gap-4">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-        {subtitle && (
-          <p className="text-gray-500 mt-1">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-3">
         {/* Custom actions */}
         {actions}
-        
-        {showNewInvoice && (
-            <button
-              onClick={() => navigate("/new")}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
-              title="New Invoice"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="hidden sm:inline">New Invoice</span>
-            </button>
-          )}
 
-          {/* Hamburger Menu */}
+        {showNewInvoice && (
+          <button
+            onClick={() => navigate("/new")}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 h-11 rounded-lg transition-colors flex items-center gap-2"
+            title="New Invoice"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="hidden sm:inline">New Invoice</span>
+          </button>
+        )}
+
+        {/* Hamburger Menu */}
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}

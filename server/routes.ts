@@ -167,13 +167,17 @@ export async function handleApiRoutes(req, url) {
         );
       }
       try {
-        const client = dbOperations.createClient(body.name.trim(), body.address ?? undefined, auth.userId);
+        const client = dbOperations.createClient(
+          body.name.trim(),
+          body.address ?? undefined,
+          auth.userId,
+        );
         return new Response(JSON.stringify(client), { status: 201, headers });
       } catch (err) {
-        return new Response(
-          JSON.stringify({ error: (err as Error).message }),
-          { status: 409, headers },
-        );
+        return new Response(JSON.stringify({ error: (err as Error).message }), {
+          status: 409,
+          headers,
+        });
       }
     }
 
@@ -245,7 +249,10 @@ export async function handleApiRoutes(req, url) {
       const body = await req.json();
       const invoice = dbOperations.getInvoice(id, auth.userId);
       if (!invoice) {
-        return new Response(JSON.stringify({ error: "Invoice not found" }), { status: 404, headers });
+        return new Response(JSON.stringify({ error: "Invoice not found" }), {
+          status: 404,
+          headers,
+        });
       }
       dbOperations.updateInvoiceStatus(id, body.status, auth.userId);
       return new Response(JSON.stringify({ success: true }), { headers });
@@ -319,16 +326,16 @@ export async function handleApiRoutes(req, url) {
         );
       }
       if (!body.date) {
-        return new Response(
-          JSON.stringify({ error: "Date is required" }),
-          { status: 400, headers },
-        );
+        return new Response(JSON.stringify({ error: "Date is required" }), {
+          status: 400,
+          headers,
+        });
       }
       if (!body.category?.trim()) {
-        return new Response(
-          JSON.stringify({ error: "Category is required" }),
-          { status: 400, headers },
-        );
+        return new Response(JSON.stringify({ error: "Category is required" }), {
+          status: 400,
+          headers,
+        });
       }
       const writeOff = dbOperations.createWriteOff(body, auth.userId);
       return new Response(JSON.stringify(writeOff), { status: 201, headers });

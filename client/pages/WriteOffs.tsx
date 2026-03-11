@@ -69,7 +69,12 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
 
   const handleCancelEdit = () => {
     setEditingWriteOff(null);
-    setEditWriteOffData({ description: "", amount: "", date: "", category: "" });
+    setEditWriteOffData({
+      description: "",
+      amount: "",
+      date: "",
+      category: "",
+    });
   };
 
   const handleSaveWriteOff = async (id: number) => {
@@ -223,7 +228,10 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
                   min="0"
                   value={newWriteOffData.amount}
                   onChange={(e) => {
-                    setNewWriteOffData((d) => ({ ...d, amount: e.target.value }));
+                    setNewWriteOffData((d) => ({
+                      ...d,
+                      amount: e.target.value,
+                    }));
                     setNewWriteOffError(null);
                   }}
                   placeholder="0.00"
@@ -250,7 +258,10 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
                 <select
                   value={newWriteOffData.category}
                   onChange={(e) =>
-                    setNewWriteOffData((d) => ({ ...d, category: e.target.value }))
+                    setNewWriteOffData((d) => ({
+                      ...d,
+                      category: e.target.value,
+                    }))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >

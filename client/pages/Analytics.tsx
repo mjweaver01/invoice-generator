@@ -18,7 +18,11 @@ import Navigation from "../components/Navigation";
 type YearOption = number | "all";
 
 /** Parse YYYY-MM-DD without timezone shift */
-function parseDateParts(dateStr: string): { year: number; month: number; day: number } {
+function parseDateParts(dateStr: string): {
+  year: number;
+  month: number;
+  day: number;
+} {
   const [year, month, day] = dateStr.split("-").map(Number);
   return { year: year!, month: month!, day: day! };
 }
@@ -243,23 +247,23 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           onLogout={onLogout}
           actions={
             <div className="flex items-center gap-3">
-            <select
-              value={selectedYear}
-              onChange={(e) =>
-                setSelectedYear(
-                  e.target.value === "all" ? "all" : Number(e.target.value),
-                )
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            >
-              <option value="all">All Time</option>
-              {availableYears.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
+              <select
+                value={selectedYear}
+                onChange={(e) =>
+                  setSelectedYear(
+                    e.target.value === "all" ? "all" : Number(e.target.value),
+                  )
+                }
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              >
+                <option value="all">All Time</option>
+                {availableYears.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
           }
         />
       </div>

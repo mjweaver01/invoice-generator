@@ -15,7 +15,9 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
     updateExistingInvoices: true,
   });
   const [loading, setLoading] = useState(true);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
+    null,
+  );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [savingClientId, setSavingClientId] = useState<number | null>(null);
   const [showNewClientForm, setShowNewClientForm] = useState(false);
@@ -81,7 +83,10 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
     setCreatingClient(true);
     setNewClientError(null);
     try {
-      await api.createClient({ name: newClientData.name.trim(), address: newClientData.address || undefined });
+      await api.createClient({
+        name: newClientData.name.trim(),
+        address: newClientData.address || undefined,
+      });
       await loadClients();
       setNewClientData({ name: "", address: "" });
       setShowNewClientForm(false);
@@ -171,7 +176,9 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
               </label>
               <textarea
                 value={newClientData.address}
-                onChange={(e) => setNewClientData((d) => ({ ...d, address: e.target.value }))}
+                onChange={(e) =>
+                  setNewClientData((d) => ({ ...d, address: e.target.value }))
+                }
                 rows={2}
                 placeholder="123 Main St, Columbus, OH 43201"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y placeholder:text-gray-400"
@@ -198,7 +205,10 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
               </button>
               <button
                 type="button"
-                onClick={() => { setShowNewClientForm(false); setNewClientError(null); }}
+                onClick={() => {
+                  setShowNewClientForm(false);
+                  setNewClientError(null);
+                }}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
               >
                 Cancel
@@ -211,9 +221,7 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
           <p className="text-gray-500">Loading clients...</p>
         ) : clients.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">
-              No clients yet.
-            </p>
+            <p className="text-gray-500 mb-4">No clients yet.</p>
             <button
               onClick={() => setShowNewClientForm(true)}
               className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"

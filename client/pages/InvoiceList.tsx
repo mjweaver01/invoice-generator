@@ -14,7 +14,9 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
   const [updatingStatusId, setUpdatingStatusId] = useState<number | null>(null);
-  const [duplicatingInvoiceId, setDuplicatingInvoiceId] = useState<number | null>(null);
+  const [duplicatingInvoiceId, setDuplicatingInvoiceId] = useState<
+    number | null
+  >(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -197,7 +199,9 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                     disabled={duplicatingInvoiceId === invoice.id}
                     className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {duplicatingInvoiceId === invoice.id ? "Duplicating..." : "Duplicate"}
+                    {duplicatingInvoiceId === invoice.id
+                      ? "Duplicating..."
+                      : "Duplicate"}
                   </button>
                   <button
                     onClick={() => navigate(`/edit/${invoice.id}`)}
