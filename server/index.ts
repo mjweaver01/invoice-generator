@@ -131,9 +131,12 @@ const server = Bun.serve({
       }
 
       // Otherwise, serve the SPA for client-side routing
-      return new Response(Bun.file(path.join(import.meta.dir, "..", "client", "index.html")), {
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response(
+        Bun.file(path.join(import.meta.dir, "..", "client", "index.html")),
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      );
     },
   },
 
@@ -165,9 +168,10 @@ const server = Bun.serve({
         },
       }),
 } as any);
+
 console.log(`📊 Database: invoices.db`);
 console.log(`🎨 Frontend: React 19 + Tailwind CSS v4`);
-console.log(`⚡ Bun native TypeScript transpilation - no build step!`);
+console.log(`⚡ Bun native TypeScript transpilation`);
 if (process.env.NODE_ENV !== "production") {
   console.log(`🔥 Hot Module Replacement (HMR) enabled`);
 }

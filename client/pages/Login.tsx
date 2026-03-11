@@ -30,6 +30,14 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
     }
   }
 
+  function handleEnterSubmit(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter" || loading) {
+      return;
+    }
+    e.preventDefault();
+    e.currentTarget.form?.requestSubmit();
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
@@ -65,6 +73,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={handleEnterSubmit}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -82,6 +91,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleEnterSubmit}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
               {isSignup && (
