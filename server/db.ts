@@ -62,6 +62,7 @@ db.run(`
     invoice_number TEXT NOT NULL,
     client_name TEXT NOT NULL,
     client_address TEXT,
+    notes TEXT NOT NULL DEFAULT '',
     invoice_date TEXT NOT NULL,
     hourly_rate REAL NOT NULL DEFAULT 150.0,
     status TEXT DEFAULT 'draft',
@@ -104,6 +105,7 @@ for (const migration of [
   `ALTER TABLE settings ADD COLUMN federal_tax_rate REAL NOT NULL DEFAULT 25.0`,
   `ALTER TABLE settings ADD COLUMN state_tax_rate REAL NOT NULL DEFAULT 3.99`,
   `ALTER TABLE settings ADD COLUMN local_tax_rate REAL NOT NULL DEFAULT 2.9`,
+  `ALTER TABLE invoices ADD COLUMN notes TEXT NOT NULL DEFAULT ''`,
 ]) {
   try {
     db.run(migration);
@@ -174,13 +176,13 @@ const queries = {
   `),
   createInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     INSERT INTO invoices (
-      user_id, invoice_number, client_name, client_address, invoice_date,
-      hourly_rate, status, total
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      user_id, invoice_number, client_name, client_address, notes,
+      invoice_date, hourly_rate, status, total
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `),
   updateInvoice: db.prepare<Invoice, SQLQueryBindings[]>(`
     UPDATE invoices
-    SET invoice_number = ?, client_name = ?, client_address = ?,
+    SET invoice_number = ?, client_name = ?, client_address = ?, notes = ?,
         invoice_date = ?, hourly_rate = ?, status = ?, total = ?,
         updated_at = CURRENT_TIMESTAMP
     WHERE id = ? AND user_id = ?
@@ -312,7 +314,7 @@ export const dbOperations = {
   },
 
   getAllInvoices(userId: number) {
-    return queries.getAllInvoices.all(userId);
+    return queries.getAllInvoices.all(userId) as unknown as Invoice[];
   },
   getNextInvoiceNumber(userId: number) {
     const invoices = this.getAllInvoices(userId);
@@ -325,7 +327,7 @@ export const dbOperations = {
   getInvoice(id: number, userId: number) {
     const invoice = queries.getInvoice.get(id, userId);
     if (!invoice) return null;
-    const lineItems = queries.getLineItems.all(id);
+    const lineItems = queries.getLineItems.all(id) as unknown as LineItem[];
     const settings = this.getSettings();
     return { ...invoice, line_items: lineItems, settings };
   },
@@ -350,6 +352,7 @@ export const dbOperations = {
       fields.invoice_number as string,
       fields.client_name as string,
       (fields.client_address as string) ?? null,
+      (fields.notes as string) ?? "",
       fields.invoice_date as string,
       (fields.hourly_rate as number) ?? 150,
       (fields.status as string) ?? "draft",
@@ -392,6 +395,7 @@ export const dbOperations = {
       fields.invoice_number as string,
       fields.client_name as string,
       (fields.client_address as string) ?? null,
+      (fields.notes as string) ?? "",
       fields.invoice_date as string,
       (fields.hourly_rate as number) ?? 150,
       (fields.status as string) ?? "draft",
@@ -434,6 +438,7 @@ export const dbOperations = {
         invoice_number: this.getNextInvoiceNumber(userId),
         client_name: sourceInvoice.client_name,
         client_address: sourceInvoice.client_address ?? "",
+        notes: sourceInvoice.notes ?? "",
         invoice_date: new Date().toISOString().split("T")[0],
         hourly_rate: sourceInvoice.hourly_rate,
         status: "draft",

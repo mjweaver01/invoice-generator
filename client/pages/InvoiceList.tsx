@@ -180,6 +180,11 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                       </span>
                     </>
                   )}
+                  {invoice.notes?.trim() && (
+                    <p className="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                      {invoice.notes.trim()}
+                    </p>
+                  )}
                 </div>
                 {/* Calc + Price: row 1 right on desktop, order 3 on mobile */}
                 <div className="flex flex-col mb-2 sm:m-0 order-3 sm:col-start-2 sm:row-start-1 sm:justify-self-end sm:items-end">
@@ -193,7 +198,7 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   </div>
                 </div>
                 {/* Buttons: row 2 right on desktop, order 4 on mobile */}
-                <div className="flex gap-2 order-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end">
+                <div className="flex gap-2 order-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end sm:self-end">
                   <button
                     onClick={() => handleDuplicateInvoice(invoice.id)}
                     disabled={duplicatingInvoiceId === invoice.id}

@@ -11,6 +11,7 @@ export default function InvoiceForm() {
     invoice_number: "",
     client_name: "",
     client_address: "",
+    notes: "",
     invoice_date: new Date().toISOString().split("T")[0],
     hourly_rate: 150.0,
     status: "draft",
@@ -66,6 +67,7 @@ export default function InvoiceForm() {
       const data = await api.getInvoice(id);
       setFormData({
         ...data,
+        notes: data.notes ?? "",
         line_items:
           data.line_items && data.line_items.length > 0
             ? data.line_items
@@ -291,6 +293,21 @@ export default function InvoiceForm() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Internal Notes */}
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Internal Notes (not shown on invoice)
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => handleChange("notes", e.target.value)}
+              placeholder="Add private notes for this invoice..."
+              rows={4}
+              disabled={loading}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
+            />
           </div>
 
           {/* Hourly Rate */}

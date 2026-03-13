@@ -3,6 +3,7 @@ export interface Invoice {
   invoice_number: string;
   client_name: string;
   client_address?: string;
+  notes?: string;
   invoice_date: string;
   due_date?: string;
   hourly_rate: number;
