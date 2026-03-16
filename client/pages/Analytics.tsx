@@ -96,7 +96,6 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
   );
   const collectionRate =
     totalInvoiced > 0 ? (totalEarned / totalInvoiced) * 100 : 0;
-  const avgInvoice = paid.length > 0 ? totalEarned / paid.length : 0;
 
   const totalWriteOffsAmount = filteredWriteOffs.reduce(
     (sum, wo) => sum + wo.amount,
@@ -113,6 +112,7 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
   const localOwed = (taxableIncome * localRate) / 100;
   const totalTaxOwed = federalOwed + stateOwed + localOwed;
   const takeHome = totalEarned - totalTaxOwed;
+  const takeHomeAfterWriteOffs = takeHome - totalWriteOffsAmount;
   const quarterlyEstimate = totalTaxOwed / 4;
 
   // Monthly breakdown for bar chart
@@ -271,6 +271,13 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm p-6">
+          <p className="text-sm font-medium text-gray-500 mb-1">Take Home</p>
+          <p className="text-2xl font-bold text-teal-600">
+            {formatCurrency(takeHomeAfterWriteOffs)}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">net profit − write-offs</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500 mb-1">Net Profit</p>
           <p className="text-2xl font-bold text-emerald-600">
             {formatCurrency(takeHome)}
@@ -301,15 +308,6 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm font-medium text-gray-500 mb-1">Outstanding</p>
-          <p className="text-2xl font-bold text-amber-500">
-            {formatCurrency(totalOutstanding)}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">
-            {sent.length} unpaid invoice{sent.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
           <p className="text-sm font-medium text-gray-500 mb-1">Write-offs</p>
           <p className="text-2xl font-bold text-indigo-600">
             {formatCurrency(totalWriteOffsAmount)}
@@ -320,11 +318,13 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm font-medium text-gray-500 mb-1">Avg Invoice</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {formatCurrency(avgInvoice)}
+          <p className="text-sm font-medium text-gray-500 mb-1">Outstanding</p>
+          <p className="text-2xl font-bold text-amber-500">
+            {formatCurrency(totalOutstanding)}
           </p>
-          <p className="text-xs text-gray-400 mt-1">paid invoices only</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {sent.length} unpaid invoice{sent.length !== 1 ? "s" : ""}
+          </p>
         </div>
       </div>
 
