@@ -44,6 +44,7 @@ export interface Settings {
   federal_tax_rate: number;
   state_tax_rate: number;
   local_tax_rate: number;
+  standard_deduction: number;
   created_at?: string;
   updated_at?: string;
 }

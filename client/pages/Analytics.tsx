@@ -102,7 +102,11 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
     0,
   );
 
-  const taxableIncome = totalEarned - totalWriteOffsAmount;
+  const standardDeduction = settings?.standard_deduction ?? 15750;
+  const taxableIncome = Math.max(
+    0,
+    totalEarned - totalWriteOffsAmount - standardDeduction,
+  );
   const federalRate = settings?.federal_tax_rate ?? 25;
   const stateRate = settings?.state_tax_rate ?? 3.99;
   const localRate = settings?.local_tax_rate ?? 2.9;
@@ -362,7 +366,7 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           </p>
         ) : (
           <>
-            {totalWriteOffsAmount > 0 && (
+            {(totalWriteOffsAmount > 0 || standardDeduction > 0) && (
               <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
                 <div className="flex items-center justify-between text-sm">
                   <div>
@@ -370,8 +374,11 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
                       Taxable Income
                     </span>
                     <p className="text-xs text-indigo-600 mt-0.5">
-                      {formatCurrency(totalEarned)} earned −{" "}
-                      {formatCurrency(totalWriteOffsAmount)} write-offs
+                      {formatCurrency(totalEarned)} earned
+                      {standardDeduction > 0 &&
+                        ` − ${formatCurrency(standardDeduction)} std deduction`}
+                      {totalWriteOffsAmount > 0 &&
+                        ` − ${formatCurrency(totalWriteOffsAmount)} write-offs`}
                     </p>
                   </div>
                   <span className="text-lg font-bold text-indigo-900">

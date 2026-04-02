@@ -105,6 +105,7 @@ for (const migration of [
   `ALTER TABLE settings ADD COLUMN federal_tax_rate REAL NOT NULL DEFAULT 25.0`,
   `ALTER TABLE settings ADD COLUMN state_tax_rate REAL NOT NULL DEFAULT 3.99`,
   `ALTER TABLE settings ADD COLUMN local_tax_rate REAL NOT NULL DEFAULT 2.9`,
+  `ALTER TABLE settings ADD COLUMN standard_deduction REAL NOT NULL DEFAULT 15750`,
   `ALTER TABLE invoices ADD COLUMN notes TEXT NOT NULL DEFAULT ''`,
 ]) {
   try {
@@ -139,7 +140,8 @@ const queries = {
     SET your_name = ?, business_name = ?, business_address = ?,
         default_hourly_rate = ?, ach_account = ?, ach_routing = ?,
         zelle_contact = ?, state = ?, federal_tax_rate = ?,
-        state_tax_rate = ?, local_tax_rate = ?, updated_at = CURRENT_TIMESTAMP
+        state_tax_rate = ?, local_tax_rate = ?, standard_deduction = ?,
+        updated_at = CURRENT_TIMESTAMP
     WHERE id = 1
   `),
 
@@ -255,6 +257,7 @@ export const dbOperations = {
       settings.federal_tax_rate ?? 25.0,
       settings.state_tax_rate ?? 3.99,
       settings.local_tax_rate ?? 2.9,
+      settings.standard_deduction ?? 15750,
     );
     return this.getSettings();
   },

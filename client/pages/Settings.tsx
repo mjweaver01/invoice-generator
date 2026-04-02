@@ -72,6 +72,7 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
     federal_tax_rate: 25.0,
     state_tax_rate: 3.99,
     local_tax_rate: 2.9,
+    standard_deduction: 15750,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -315,6 +316,29 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
                       County/city income tax (Franklin County: 2.9%)
                     </p>
                   </div>
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Standard Deduction ($)
+                  </label>
+                  <input
+                    type="number"
+                    value={settings.standard_deduction}
+                    onChange={(e) =>
+                      handleChange(
+                        "standard_deduction",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    step="1"
+                    min="0"
+                    disabled={loading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Reduces taxable income — $15,750 single / $31,500 married
+                    (2025)
+                  </p>
                 </div>
               </div>
             </div>
