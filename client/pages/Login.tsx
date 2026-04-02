@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../api";
+import { Input, Button, Alert } from "../components/ui";
 
 export default function Login({ onLogin }: { onLogin: () => void }) {
   const [isSignup, setIsSignup] = useState(false);
@@ -53,63 +54,47 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
+          {error && <Alert variant="error">{error}</Alert>}
 
           <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onKeyDown={handleEnterSubmit}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+            <Input
+              label="Username"
+              id="username"
+              type="text"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={handleEnterSubmit}
+              inputSize="sm"
+              className="mt-1 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+            />
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <input
+              <Input
+                label="Password"
                 id="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleEnterSubmit}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                inputSize="sm"
+                className="mt-1 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                hint={isSignup ? "Must be at least 6 characters" : undefined}
               />
-              {isSignup && (
-                <p className="mt-1 text-xs text-gray-500">
-                  Must be at least 6 characters
-                </p>
-              )}
             </div>
           </div>
 
           <div>
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              loading={loading}
+              loadingText="Please wait..."
+              className="w-full shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {loading ? "Please wait..." : isSignup ? "Sign Up" : "Sign In"}
-            </button>
+              {isSignup ? "Sign Up" : "Sign In"}
+            </Button>
           </div>
 
           <div className="text-center">

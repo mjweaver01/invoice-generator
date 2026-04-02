@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import Navigation from "../components/Navigation";
+import { Input, Textarea, Button, Card, Alert, Modal } from "../components/ui";
 
 export default function Clients({ onLogout }: { onLogout?: () => void }) {
   const navigate = useNavigate();
@@ -114,7 +115,7 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm p-8">
+      <Card padding="lg">
         <Navigation
           title="Clients"
           showNewInvoice={false}
@@ -147,72 +148,60 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
         />
 
         {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+          <Alert variant="success" className="mb-6">
             {successMessage}
-          </div>
+          </Alert>
         )}
 
         {showNewClientForm && (
           <div className="border border-gray-200 rounded-lg p-4 mb-3 space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Client Name
-              </label>
-              <input
-                type="text"
-                value={newClientData.name}
-                onChange={(e) => {
-                  setNewClientData((d) => ({ ...d, name: e.target.value }));
-                  setNewClientError(null);
-                }}
-                placeholder="Acme Corp"
-                autoFocus
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
-              </label>
-              <textarea
-                value={newClientData.address}
-                onChange={(e) =>
-                  setNewClientData((d) => ({ ...d, address: e.target.value }))
-                }
-                rows={2}
-                placeholder="123 Main St, Columbus, OH 43201"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y placeholder:text-gray-400"
-              />
-            </div>
-            {newClientError && (
-              <p className="text-sm text-red-600">{newClientError}</p>
-            )}
+            <Input
+              label="Client Name"
+              type="text"
+              value={newClientData.name}
+              onChange={(e) => {
+                setNewClientData((d) => ({ ...d, name: e.target.value }));
+                setNewClientError(null);
+              }}
+              placeholder="Acme Corp"
+              autoFocus
+              inputSize="sm"
+              error={newClientError || undefined}
+            />
+            <Textarea
+              label="Address"
+              value={newClientData.address}
+              onChange={(e) =>
+                setNewClientData((d) => ({ ...d, address: e.target.value }))
+              }
+              rows={2}
+              placeholder="123 Main St, Columbus, OH 43201"
+              textareaSize="sm"
+            />
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
                 onClick={handleCreateClient}
-                disabled={creatingClient}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 min-w-[100px] justify-center disabled:opacity-80 disabled:cursor-wait"
+                loading={creatingClient}
+                loadingText="Saving..."
+                className="min-w-[100px]"
               >
-                {creatingClient ? (
-                  <>
-                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                    Saving…
-                  </>
-                ) : (
-                  "Save"
-                )}
-              </button>
-              <button
+                Save
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setShowNewClientForm(false);
                   setNewClientError(null);
                 }}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                className="bg-gray-100 hover:bg-gray-200 border-0"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -222,12 +211,13 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
         ) : clients.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">No clients yet.</p>
-            <button
+            <Button
+              variant="success"
+              size="lg"
               onClick={() => setShowNewClientForm(true)}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
             >
               Add your first client
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -238,39 +228,31 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
               >
                 {editingClient === client.id ? (
                   <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Client Name
-                      </label>
-                      <input
-                        type="text"
-                        value={editClientData.name}
-                        onChange={(e) =>
-                          setEditClientData({
-                            ...editClientData,
-                            name: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Address
-                      </label>
-                      <textarea
-                        value={editClientData.address}
-                        onChange={(e) =>
-                          setEditClientData({
-                            ...editClientData,
-                            address: e.target.value,
-                          })
-                        }
-                        rows={3}
-                        placeholder="Enter client address"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y placeholder:text-gray-400"
-                      />
-                    </div>
+                    <Input
+                      label="Client Name"
+                      type="text"
+                      value={editClientData.name}
+                      onChange={(e) =>
+                        setEditClientData({
+                          ...editClientData,
+                          name: e.target.value,
+                        })
+                      }
+                      inputSize="sm"
+                    />
+                    <Textarea
+                      label="Address"
+                      value={editClientData.address}
+                      onChange={(e) =>
+                        setEditClientData({
+                          ...editClientData,
+                          address: e.target.value,
+                        })
+                      }
+                      rows={3}
+                      placeholder="Enter client address"
+                      textareaSize="sm"
+                    />
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
@@ -288,28 +270,26 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
                       </span>
                     </label>
                     <div className="flex gap-2">
-                      <button
+                      <Button
                         type="button"
+                        variant="primary"
+                        size="sm"
                         onClick={() => handleSaveClient(client.id)}
-                        disabled={savingClientId === client.id}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 min-w-[100px] justify-center disabled:opacity-80 disabled:cursor-wait"
+                        loading={savingClientId === client.id}
+                        loadingText="Saving..."
+                        className="min-w-[100px]"
                       >
-                        {savingClientId === client.id ? (
-                          <>
-                            <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                            Saving…
-                          </>
-                        ) : (
-                          "Save"
-                        )}
-                      </button>
-                      <button
+                        Save
+                      </Button>
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         onClick={handleCancelEdit}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                        className="bg-gray-100 hover:bg-gray-200 border-0"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -327,20 +307,22 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
                       </p>
                     </div>
                     <div className="flex gap-3 ml-4">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleEditClient(client)}
-                        className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost-danger"
+                        size="sm"
                         onClick={() => setShowDeleteConfirm(client.id)}
-                        className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
                       >
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -348,39 +330,18 @@ export default function Clients({ onLogout }: { onLogout?: () => void }) {
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Delete Client Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="absolute inset-0 bg-black opacity-75 z-0"
-            onClick={() => setShowDeleteConfirm(null)}
-          ></div>
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 z-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Delete Client?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this client? This will not affect
-              existing invoices.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(null)}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteClient(showDeleteConfirm)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Delete Client?"
+          message="Are you sure you want to delete this client? This will not affect existing invoices."
+          confirmLabel="Delete"
+          confirmVariant="danger"
+          onConfirm={() => handleDeleteClient(showDeleteConfirm)}
+          onCancel={() => setShowDeleteConfirm(null)}
+        />
       )}
     </div>
   );

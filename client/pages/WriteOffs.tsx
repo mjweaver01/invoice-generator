@@ -4,6 +4,7 @@ import { api } from "../api";
 import { formatCurrency, formatDate } from "../utils";
 import type { WriteOff } from "../types";
 import Navigation from "../components/Navigation";
+import { Input, Select, Button, Card, Alert, Modal } from "../components/ui";
 
 const CATEGORIES = [
   "Home Office",
@@ -153,7 +154,7 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm p-8">
+      <Card padding="lg">
         <Navigation
           title="Write-offs"
           showNewInvoice={false}
@@ -191,117 +192,99 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
         />
 
         {successMessage && (
-          <div className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg mb-6">
+          <Alert variant="purple" className="mb-6">
             {successMessage}
-          </div>
+          </Alert>
         )}
 
         {showNewWriteOffForm && (
           <div className="border border-gray-200 rounded-lg p-4 mb-3 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  value={newWriteOffData.description}
-                  onChange={(e) => {
-                    setNewWriteOffData((d) => ({
-                      ...d,
-                      description: e.target.value,
-                    }));
-                    setNewWriteOffError(null);
-                  }}
-                  placeholder="Office supplies, laptop, etc."
-                  autoFocus
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={newWriteOffData.amount}
-                  onChange={(e) => {
-                    setNewWriteOffData((d) => ({
-                      ...d,
-                      amount: e.target.value,
-                    }));
-                    setNewWriteOffError(null);
-                  }}
-                  placeholder="0.00"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  value={newWriteOffData.date}
-                  onChange={(e) =>
-                    setNewWriteOffData((d) => ({ ...d, date: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
-                <select
-                  value={newWriteOffData.category}
-                  onChange={(e) =>
-                    setNewWriteOffData((d) => ({
-                      ...d,
-                      category: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Input
+                label="Description"
+                type="text"
+                value={newWriteOffData.description}
+                onChange={(e) => {
+                  setNewWriteOffData((d) => ({
+                    ...d,
+                    description: e.target.value,
+                  }));
+                  setNewWriteOffError(null);
+                }}
+                placeholder="Office supplies, laptop, etc."
+                autoFocus
+                inputSize="sm"
+              />
+              <Input
+                label="Amount"
+                type="number"
+                step="0.01"
+                min="0"
+                value={newWriteOffData.amount}
+                onChange={(e) => {
+                  setNewWriteOffData((d) => ({
+                    ...d,
+                    amount: e.target.value,
+                  }));
+                  setNewWriteOffError(null);
+                }}
+                placeholder="0.00"
+                inputSize="sm"
+              />
+              <Input
+                label="Date"
+                type="date"
+                value={newWriteOffData.date}
+                onChange={(e) =>
+                  setNewWriteOffData((d) => ({ ...d, date: e.target.value }))
+                }
+                inputSize="sm"
+              />
+              <Select
+                label="Category"
+                value={newWriteOffData.category}
+                onChange={(e) =>
+                  setNewWriteOffData((d) => ({
+                    ...d,
+                    category: e.target.value,
+                  }))
+                }
+                selectSize="sm"
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </Select>
             </div>
             {newWriteOffError && (
               <p className="text-sm text-red-600">{newWriteOffError}</p>
             )}
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
                 onClick={handleCreateWriteOff}
-                disabled={creatingWriteOff}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 min-w-[100px] justify-center disabled:opacity-80 disabled:cursor-wait"
+                loading={creatingWriteOff}
+                loadingText="Saving..."
+                className="min-w-[100px]"
               >
-                {creatingWriteOff ? (
-                  <>
-                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                    Saving…
-                  </>
-                ) : (
-                  "Save"
-                )}
-              </button>
-              <button
+                Save
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setShowNewWriteOffForm(false);
                   setNewWriteOffError(null);
                 }}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                className="bg-gray-100 hover:bg-gray-200 border-0"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -340,101 +323,83 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
                   {editingWriteOff === writeOff.id ? (
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description
-                          </label>
-                          <input
-                            type="text"
-                            value={editWriteOffData.description}
-                            onChange={(e) =>
-                              setEditWriteOffData({
-                                ...editWriteOffData,
-                                description: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Amount
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={editWriteOffData.amount}
-                            onChange={(e) =>
-                              setEditWriteOffData({
-                                ...editWriteOffData,
-                                amount: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Date
-                          </label>
-                          <input
-                            type="date"
-                            value={editWriteOffData.date}
-                            onChange={(e) =>
-                              setEditWriteOffData({
-                                ...editWriteOffData,
-                                date: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Category
-                          </label>
-                          <select
-                            value={editWriteOffData.category}
-                            onChange={(e) =>
-                              setEditWriteOffData({
-                                ...editWriteOffData,
-                                category: e.target.value,
-                              })
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            {CATEGORIES.map((cat) => (
-                              <option key={cat} value={cat}>
-                                {cat}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                        <Input
+                          label="Description"
+                          type="text"
+                          value={editWriteOffData.description}
+                          onChange={(e) =>
+                            setEditWriteOffData({
+                              ...editWriteOffData,
+                              description: e.target.value,
+                            })
+                          }
+                          inputSize="sm"
+                        />
+                        <Input
+                          label="Amount"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={editWriteOffData.amount}
+                          onChange={(e) =>
+                            setEditWriteOffData({
+                              ...editWriteOffData,
+                              amount: e.target.value,
+                            })
+                          }
+                          inputSize="sm"
+                        />
+                        <Input
+                          label="Date"
+                          type="date"
+                          value={editWriteOffData.date}
+                          onChange={(e) =>
+                            setEditWriteOffData({
+                              ...editWriteOffData,
+                              date: e.target.value,
+                            })
+                          }
+                          inputSize="sm"
+                        />
+                        <Select
+                          label="Category"
+                          value={editWriteOffData.category}
+                          onChange={(e) =>
+                            setEditWriteOffData({
+                              ...editWriteOffData,
+                              category: e.target.value,
+                            })
+                          }
+                          selectSize="sm"
+                        >
+                          {CATEGORIES.map((cat) => (
+                            <option key={cat} value={cat}>
+                              {cat}
+                            </option>
+                          ))}
+                        </Select>
                       </div>
                       <div className="flex gap-2">
-                        <button
+                        <Button
                           type="button"
+                          variant="primary"
+                          size="sm"
                           onClick={() => handleSaveWriteOff(writeOff.id!)}
-                          disabled={savingWriteOffId === writeOff.id}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 min-w-[100px] justify-center disabled:opacity-80 disabled:cursor-wait"
+                          loading={savingWriteOffId === writeOff.id}
+                          loadingText="Saving..."
+                          className="min-w-[100px]"
                         >
-                          {savingWriteOffId === writeOff.id ? (
-                            <>
-                              <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                              Saving…
-                            </>
-                          ) : (
-                            "Save"
-                          )}
-                        </button>
-                        <button
+                          Save
+                        </Button>
+                        <Button
                           type="button"
+                          variant="secondary"
+                          size="sm"
                           onClick={handleCancelEdit}
-                          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                          className="bg-gray-100 hover:bg-gray-200 border-0"
                         >
                           Cancel
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -456,20 +421,22 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
                         </div>
                       </div>
                       <div className="flex gap-3 ml-4">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleEditWriteOff(writeOff)}
-                          className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
                         >
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="ghost-danger"
+                          size="sm"
                           onClick={() => setShowDeleteConfirm(writeOff.id!)}
-                          className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
                         >
                           Delete
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -478,38 +445,17 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
             </div>
           </>
         )}
-      </div>
+      </Card>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="absolute inset-0 bg-black opacity-75 z-0"
-            onClick={() => setShowDeleteConfirm(null)}
-          ></div>
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 z-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Delete Write-off?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this write-off? This action cannot
-              be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(null)}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteWriteOff(showDeleteConfirm)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Delete Write-off?"
+          message="Are you sure you want to delete this write-off? This action cannot be undone."
+          confirmLabel="Delete"
+          confirmVariant="danger"
+          onConfirm={() => handleDeleteWriteOff(showDeleteConfirm)}
+          onCancel={() => setShowDeleteConfirm(null)}
+        />
       )}
     </div>
   );

@@ -14,6 +14,7 @@ import type { Invoice, Settings, WriteOff } from "../types";
 import { formatCurrency, formatDate } from "../utils";
 import { api } from "../api";
 import Navigation from "../components/Navigation";
+import { Card, Spinner } from "../components/ui";
 
 type YearOption = number | "all";
 
@@ -230,12 +231,9 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-          <div className="flex flex-col items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-500 text-lg">Loading analytics...</p>
-          </div>
-        </div>
+        <Card className="p-12 text-center">
+          <Spinner label="Loading analytics..." />
+        </Card>
       </div>
     );
   }
@@ -243,7 +241,7 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-8">
+      <Card padding="lg">
         <Navigation
           title="Analytics"
           subtitle="Income overview & insights"
@@ -270,18 +268,18 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
             </div>
           }
         />
-      </div>
+      </Card>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <Card>
           <p className="text-sm font-medium text-gray-500 mb-1">Take Home</p>
           <p className="text-2xl font-bold text-teal-600">
             {formatCurrency(takeHomeAfterWriteOffs)}
           </p>
           <p className="text-xs text-gray-400 mt-1">net profit − write-offs</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        </Card>
+        <Card>
           <p className="text-sm font-medium text-gray-500 mb-1">Net Profit</p>
           <p className="text-2xl font-bold text-emerald-600">
             {formatCurrency(takeHome)}
@@ -290,8 +288,8 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
             {formatCurrency(totalEarned)} gross - {formatCurrency(totalTaxOwed)}{" "}
             est tax
           </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        </Card>
+        <Card>
           <p className="text-sm font-medium text-gray-500 mb-1">Gross Profit</p>
           <p className="text-2xl font-bold text-green-600">
             {formatCurrency(totalEarned)}
@@ -299,8 +297,8 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           <p className="text-xs text-gray-400 mt-1">
             {paid.length} paid invoice{paid.length !== 1 ? "s" : ""}
           </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        </Card>
+        <Card>
           <p className="text-sm font-medium text-gray-500 mb-1">
             Total Tax Set Aside
           </p>
@@ -310,8 +308,8 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           <p className="text-xs text-gray-400 mt-1">
             estimated federal + state + local
           </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        </Card>
+        <Card>
           <p className="text-sm font-medium text-gray-500 mb-1">Write-offs</p>
           <p className="text-2xl font-bold text-indigo-600">
             {formatCurrency(totalWriteOffsAmount)}
@@ -320,8 +318,8 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
             {filteredWriteOffs.length} deduction
             {filteredWriteOffs.length !== 1 ? "s" : ""}
           </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        </Card>
+        <Card>
           <p className="text-sm font-medium text-gray-500 mb-1">Outstanding</p>
           <p className="text-2xl font-bold text-amber-500">
             {formatCurrency(totalOutstanding)}
@@ -329,11 +327,11 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
           <p className="text-xs text-gray-400 mt-1">
             {sent.length} unpaid invoice{sent.length !== 1 ? "s" : ""}
           </p>
-        </div>
+        </Card>
       </div>
 
       {/* Tax Breakdown */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <Card>
         <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-5">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
@@ -468,11 +466,11 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
             </p>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Write-offs Breakdown */}
       {writeOffsByCategory.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <Card>
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-lg font-semibold text-gray-900">
               Write-offs by Category
@@ -518,11 +516,11 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
               {formatCurrency(totalWriteOffsAmount)}
             </span>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Bar Chart */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <Card>
         <h2 className="text-lg font-semibold text-gray-900 mb-6">
           {selectedYear === "all"
             ? "Income by Year"
@@ -615,12 +613,12 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
             </div>
           </>
         )}
-      </div>
+      </Card>
 
       {/* Status Breakdown + Top Clients */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status breakdown */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-5">
             Invoice Status
           </h2>
@@ -680,10 +678,10 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
               {formatCurrency(totalInvoiced)}
             </span>
           </div>
-        </div>
+        </Card>
 
         {/* Top clients */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-5">
             Top Clients
           </h2>
@@ -723,12 +721,12 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
               })}
             </div>
           )}
-        </div>
+        </Card>
       </div>
 
       {/* Recent Paid Invoices */}
       {recentPaid.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-5">
             Recent Payments
           </h2>
@@ -752,7 +750,7 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
                     {formatCurrency(inv.total || 0)}
                   </span>
                   <button
-                    onClick={() => navigate(`/edit/${inv.id}`)}
+                    onClick={() => navigate(`/print/${inv.id}`)}
                     className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
                   >
                     View
@@ -761,7 +759,7 @@ export default function Analytics({ onLogout }: { onLogout?: () => void }) {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

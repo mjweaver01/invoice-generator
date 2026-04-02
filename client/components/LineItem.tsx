@@ -1,4 +1,5 @@
 import { formatCurrency } from "../utils";
+import { Input } from "./ui";
 
 export default function LineItem({
   item,
@@ -17,17 +18,17 @@ export default function LineItem({
   return (
     <div className="grid grid-cols-12 gap-4 items-center mb-3">
       <div className="col-span-6">
-        <input
+        <Input
           type="text"
           placeholder="Description of work"
           value={item.description}
           onChange={(e) => handleChange("description", e.target.value)}
           disabled={disabled}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
+          inputSize="sm"
         />
       </div>
       <div className="col-span-2">
-        <input
+        <Input
           type="number"
           placeholder="Hours"
           value={item.hours}
@@ -35,7 +36,7 @@ export default function LineItem({
           step="0.25"
           min="0"
           disabled={disabled}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
+          inputSize="sm"
         />
       </div>
       <div className="col-span-3">

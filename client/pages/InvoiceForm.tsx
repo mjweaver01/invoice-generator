@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import LineItem from "../components/LineItem";
 import { api } from "../api";
 import { formatCurrency } from "../utils";
+import { Input, Textarea, Select, Button, Card, Alert, Modal } from "../components/ui";
 
 export default function InvoiceForm() {
   const navigate = useNavigate();
@@ -186,7 +187,7 @@ export default function InvoiceForm() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm p-8">
+      <Card padding="lg">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
             {id ? "Edit Invoice" : "New Invoice"}
@@ -200,55 +201,40 @@ export default function InvoiceForm() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <Alert variant="error" className="mb-6">
             {error}
-          </div>
+          </Alert>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* Invoice Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Invoice Number
-              </label>
-              <input
-                type="text"
-                value={formData.invoice_number}
-                onChange={(e) => handleChange("invoice_number", e.target.value)}
-                required
-                disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Invoice Date
-              </label>
-              <input
-                type="date"
-                value={formData.invoice_date}
-                onChange={(e) => handleChange("invoice_date", e.target.value)}
-                required
-                disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) => handleChange("status", e.target.value)}
-                disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
-                <option value="paid">Paid</option>
-              </select>
-            </div>
+            <Input
+              label="Invoice Number"
+              type="text"
+              value={formData.invoice_number}
+              onChange={(e) => handleChange("invoice_number", e.target.value)}
+              required
+              disabled={loading}
+            />
+            <Input
+              label="Invoice Date"
+              type="date"
+              value={formData.invoice_date}
+              onChange={(e) => handleChange("invoice_date", e.target.value)}
+              required
+              disabled={loading}
+            />
+            <Select
+              label="Status"
+              value={formData.status}
+              onChange={(e) => handleChange("status", e.target.value)}
+              disabled={loading}
+            >
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="paid">Paid</option>
+            </Select>
           </div>
 
           {/* Client Info */}
@@ -258,10 +244,8 @@ export default function InvoiceForm() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Client Name *
-                </label>
-                <input
+                <Input
+                  label="Client Name *"
                   type="text"
                   list="clients-list"
                   value={formData.client_name}
@@ -269,7 +253,6 @@ export default function InvoiceForm() {
                   required
                   disabled={loading}
                   placeholder="Select or enter client name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
                 />
                 <datalist id="clients-list">
                   {clients.map((client) => (
@@ -277,58 +260,45 @@ export default function InvoiceForm() {
                   ))}
                 </datalist>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Client Address
-                </label>
-                <textarea
-                  value={formData.client_address}
-                  onChange={(e) =>
-                    handleChange("client_address", e.target.value)
-                  }
-                  placeholder="Enter business address"
-                  rows={3}
-                  disabled={loading}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                />
-              </div>
+              <Textarea
+                label="Client Address"
+                value={formData.client_address}
+                onChange={(e) =>
+                  handleChange("client_address", e.target.value)
+                }
+                placeholder="Enter business address"
+                rows={3}
+                disabled={loading}
+              />
             </div>
           </div>
 
           {/* Internal Notes */}
           <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Internal Notes (not shown on invoice)
-            </label>
-            <textarea
+            <Textarea
+              label="Internal Notes (not shown on invoice)"
               value={formData.notes}
               onChange={(e) => handleChange("notes", e.target.value)}
               placeholder="Add private notes for this invoice..."
               rows={4}
               disabled={loading}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
             />
           </div>
 
           {/* Hourly Rate */}
           <div className="mb-8">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hourly Rate ($)
-              </label>
-              <input
-                type="number"
-                value={formData.hourly_rate}
-                onChange={(e) =>
-                  handleChange("hourly_rate", parseFloat(e.target.value) || 0)
-                }
-                step="0.01"
-                min="0"
-                required
-                disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              />
-            </div>
+            <Input
+              label="Hourly Rate ($)"
+              type="number"
+              value={formData.hourly_rate}
+              onChange={(e) =>
+                handleChange("hourly_rate", parseFloat(e.target.value) || 0)
+              }
+              step="0.01"
+              min="0"
+              required
+              disabled={loading}
+            />
           </div>
 
           {/* Line Items */}
@@ -337,14 +307,15 @@ export default function InvoiceForm() {
               <h2 className="text-xl font-semibold text-gray-900">
                 Line Items
               </h2>
-              <button
+              <Button
                 type="button"
+                variant="success"
+                size="sm"
                 onClick={handleAddLineItem}
                 disabled={loading}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 + Add Line Item
-              </button>
+              </Button>
             </div>
 
             <div className="grid grid-cols-12 gap-4 mb-3 text-sm font-medium text-gray-700">
@@ -394,69 +365,53 @@ export default function InvoiceForm() {
           {/* Actions */}
           <div className="flex justify-between items-center">
             {id && (
-              <button
+              <Button
                 type="button"
+                variant="danger"
+                size="lg"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving || loading}
-                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Delete Invoice
-              </button>
+              </Button>
             )}
             <div className="flex gap-4 ml-auto">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="lg"
                 onClick={() => navigate("/")}
                 disabled={loading}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                disabled={saving || loading}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="primary"
+                size="lg"
+                loading={saving}
+                disabled={loading}
+                loadingText="Saving..."
               >
-                {saving ? "Saving..." : loading ? "Loading..." : "Save Invoice"}
-              </button>
+                {loading ? "Loading..." : "Save Invoice"}
+              </Button>
             </div>
           </div>
         </form>
-      </div>
+      </Card>
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="absolute inset-0 bg-black opacity-75 z-0"
-            onClick={() => setShowDeleteConfirm(false)}
-          ></div>
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 z-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Delete Invoice?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this invoice? This action cannot
-              be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={saving}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={saving}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Delete Invoice?"
+          message="Are you sure you want to delete this invoice? This action cannot be undone."
+          confirmLabel="Delete"
+          confirmVariant="danger"
+          loading={saving}
+          loadingText="Deleting..."
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
       )}
     </div>
   );

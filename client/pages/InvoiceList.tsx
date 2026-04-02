@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from "../utils";
 import { StatusPill } from "../components/StatusPill";
 import Navigation from "../components/Navigation";
 import { api } from "../api";
+import { Input, Select, Button, Card, Spinner, Modal } from "../components/ui";
 
 export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
   const navigate = useNavigate();
@@ -86,22 +87,21 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6">
-      <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+      <Card padding="lg" className="mb-6">
         <Navigation title="Invoices" onLogout={onLogout} />
 
         <div className="flex flex-col md:flex-row gap-4">
-          <input
+          <Input
             type="text"
             placeholder="Search by client or invoice number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
+            wrapperClassName="flex-1"
           />
           <div className="flex gap-4">
-            <select
+            <Select
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Clients</option>
               {uniqueClients.map((client) => (
@@ -109,46 +109,45 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                   {client}
                 </option>
               ))}
-            </select>
-            <select
+            </Select>
+            <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Status</option>
               <option value="draft">Draft</option>
               <option value="sent">Sent</option>
               <option value="paid">Paid</option>
-            </select>
+            </Select>
           </div>
         </div>
-      </div>
+      </Card>
 
       <div className="space-y-3">
         {loading ? (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-            <div className="flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-gray-500 text-lg">Loading invoices...</p>
-            </div>
-          </div>
+          <Card className="p-12 text-center">
+            <Spinner label="Loading invoices..." />
+          </Card>
         ) : filteredInvoices.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+          <Card className="p-12 text-center">
             <p className="text-gray-500 mb-4">No invoices found</p>
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               onClick={() => navigate("/new")}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             >
               {invoices?.length === 0
                 ? "Create your first invoice"
                 : "Create a new invoice"}
-            </button>
-          </div>
+            </Button>
+          </Card>
         ) : (
           filteredInvoices.map((invoice) => (
-            <div
+            <Card
               key={invoice.id}
-              className="bg-white rounded-xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow"
+              padding="sm"
+              hoverable
+              className="sm:p-6"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 sm:gap-y-3">
                 {/* Invoice + Status: row 1 left */}
@@ -199,61 +198,50 @@ export default function InvoiceList({ onLogout }: { onLogout: () => void }) {
                 </div>
                 {/* Buttons: row 2 right on desktop, order 4 on mobile */}
                 <div className="flex gap-2 order-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end sm:self-end">
-                  <button
+                  <Button
+                    size="sm"
+                    variant="secondary"
                     onClick={() => handleDuplicateInvoice(invoice.id)}
                     disabled={duplicatingInvoiceId === invoice.id}
-                    className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 border-0"
                   >
                     {duplicatingInvoiceId === invoice.id
                       ? "Duplicating..."
                       : "Duplicate"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
                     onClick={() => navigate(`/edit/${invoice.id}`)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 border-0"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
                     onClick={() => navigate(`/print/${invoice.id}`)}
-                    className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
+                    className="bg-blue-100 hover:bg-blue-200 text-blue-700 border-0"
                   >
                     Print
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Card>
           ))
         )}
       </div>
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Delete Invoice?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this invoice? This action cannot
-              be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteInvoice(deleteConfirmId)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Delete Invoice?"
+          message="Are you sure you want to delete this invoice? This action cannot be undone."
+          confirmLabel="Delete"
+          confirmVariant="danger"
+          onConfirm={() => handleDeleteInvoice(deleteConfirmId)}
+          onCancel={() => setDeleteConfirmId(null)}
+        />
       )}
     </div>
   );

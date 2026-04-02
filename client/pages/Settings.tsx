@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import Navigation from "../components/Navigation";
+import { Input, Textarea, Select, Button, Card, Alert } from "../components/ui";
 
 // Approximate state income tax rates (top marginal or flat rate for freelancers)
 const STATE_TAX_RATES: Record<string, number> = {
@@ -115,7 +116,7 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-sm p-8">
+      <Card padding="lg">
         <Navigation
           title="Settings"
           showNewInvoice={false}
@@ -123,9 +124,9 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
         />
 
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+          <Alert variant="success" className="mb-6">
             Settings saved successfully!
-          </div>
+          </Alert>
         )}
 
         <form onSubmit={handleSubmit}>
@@ -134,19 +135,14 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Personal Information
               </h2>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  value={settings.your_name}
-                  onChange={(e) => handleChange("your_name", e.target.value)}
-                  placeholder="John Doe"
-                  disabled={loading}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                />
-              </div>
+              <Input
+                label="Your Name"
+                type="text"
+                value={settings.your_name}
+                onChange={(e) => handleChange("your_name", e.target.value)}
+                placeholder="John Doe"
+                disabled={loading}
+              />
             </div>
 
             <div>
@@ -154,36 +150,26 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
                 Business Information
               </h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Name
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.business_name}
-                    onChange={(e) =>
-                      handleChange("business_name", e.target.value)
-                    }
-                    placeholder="My Consulting LLC"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Address
-                  </label>
-                  <textarea
-                    value={settings.business_address}
-                    onChange={(e) =>
-                      handleChange("business_address", e.target.value)
-                    }
-                    placeholder="123 Main St, Suite 100&#10;New York, NY 10001"
-                    rows={3}
-                    disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                  />
-                </div>
+                <Input
+                  label="Business Name"
+                  type="text"
+                  value={settings.business_name}
+                  onChange={(e) =>
+                    handleChange("business_name", e.target.value)
+                  }
+                  placeholder="My Consulting LLC"
+                  disabled={loading}
+                />
+                <Textarea
+                  label="Business Address"
+                  value={settings.business_address}
+                  onChange={(e) =>
+                    handleChange("business_address", e.target.value)
+                  }
+                  placeholder={"123 Main St, Suite 100\nNew York, NY 10001"}
+                  rows={3}
+                  disabled={loading}
+                />
               </div>
             </div>
 
@@ -191,25 +177,20 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Default Invoice Settings
               </h2>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Default Hourly Rate ($)
-                </label>
-                <input
-                  type="number"
-                  value={settings.default_hourly_rate}
-                  onChange={(e) =>
-                    handleChange(
-                      "default_hourly_rate",
-                      parseFloat(e.target.value) || 0,
-                    )
-                  }
-                  step="0.01"
-                  min="0"
-                  disabled={loading}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
-              </div>
+              <Input
+                label="Default Hourly Rate ($)"
+                type="number"
+                value={settings.default_hourly_rate}
+                onChange={(e) =>
+                  handleChange(
+                    "default_hourly_rate",
+                    parseFloat(e.target.value) || 0,
+                  )
+                }
+                step="0.01"
+                min="0"
+                disabled={loading}
+              />
             </div>
 
             <div>
@@ -222,106 +203,78 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
                 situation.
               </p>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    State
-                  </label>
-                  <select
-                    value={settings.state}
-                    onChange={(e) => {
-                      const state = e.target.value;
-                      const suggestedRate = STATE_TAX_RATES[state] ?? 0;
-                      handleChange("state", state);
-                      handleChange("state_tax_rate", suggestedRate);
-                    }}
-                    disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  >
-                    {Object.keys(STATE_TAX_RATES)
-                      .sort()
-                      .map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+                <Select
+                  label="State"
+                  value={settings.state}
+                  onChange={(e) => {
+                    const state = e.target.value;
+                    const suggestedRate = STATE_TAX_RATES[state] ?? 0;
+                    handleChange("state", state);
+                    handleChange("state_tax_rate", suggestedRate);
+                  }}
+                  disabled={loading}
+                >
+                  {Object.keys(STATE_TAX_RATES)
+                    .sort()
+                    .map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                </Select>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Federal Rate (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={settings.federal_tax_rate}
-                      onChange={(e) =>
-                        handleChange(
-                          "federal_tax_rate",
-                          parseFloat(e.target.value) || 0,
-                        )
-                      }
-                      step="0.1"
-                      min="0"
-                      max="100"
-                      disabled={loading}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">
-                      Includes SE tax (~15.3%) + income tax
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      State Rate (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={settings.state_tax_rate}
-                      onChange={(e) =>
-                        handleChange(
-                          "state_tax_rate",
-                          parseFloat(e.target.value) || 0,
-                        )
-                      }
-                      step="0.1"
-                      min="0"
-                      max="100"
-                      disabled={loading}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">
-                      Auto-filled when you select a state
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Local Rate (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={settings.local_tax_rate}
-                      onChange={(e) =>
-                        handleChange(
-                          "local_tax_rate",
-                          parseFloat(e.target.value) || 0,
-                        )
-                      }
-                      step="0.1"
-                      min="0"
-                      max="100"
-                      disabled={loading}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">
-                      County/city income tax (Franklin County: 2.9%)
-                    </p>
-                  </div>
+                  <Input
+                    label="Federal Rate (%)"
+                    type="number"
+                    value={settings.federal_tax_rate}
+                    onChange={(e) =>
+                      handleChange(
+                        "federal_tax_rate",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    disabled={loading}
+                    hint="Includes SE tax (~15.3%) + income tax"
+                  />
+                  <Input
+                    label="State Rate (%)"
+                    type="number"
+                    value={settings.state_tax_rate}
+                    onChange={(e) =>
+                      handleChange(
+                        "state_tax_rate",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    disabled={loading}
+                    hint="Auto-filled when you select a state"
+                  />
+                  <Input
+                    label="Local Rate (%)"
+                    type="number"
+                    value={settings.local_tax_rate}
+                    onChange={(e) =>
+                      handleChange(
+                        "local_tax_rate",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    disabled={loading}
+                    hint="County/city income tax (Franklin County: 2.9%)"
+                  />
                 </div>
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Standard Deduction ($)
-                  </label>
-                  <input
+                  <Input
+                    label="Standard Deduction ($)"
                     type="number"
                     value={settings.standard_deduction}
                     onChange={(e) =>
@@ -333,12 +286,8 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
                     step="1"
                     min="0"
                     disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    hint="Reduces taxable income — $15,750 single / $31,500 married (2025)"
                   />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Reduces taxable income — $15,750 single / $31,500 married
-                    (2025)
-                  </p>
                 </div>
               </div>
             </div>
@@ -348,74 +297,63 @@ export default function Settings({ onLogout }: { onLogout?: () => void }) {
                 Payment Methods
               </h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ACH Account Number
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.ach_account}
-                    onChange={(e) =>
-                      handleChange("ach_account", e.target.value)
-                    }
-                    placeholder="0000009999999999"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ACH Routing Number
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.ach_routing}
-                    onChange={(e) =>
-                      handleChange("ach_routing", e.target.value)
-                    }
-                    placeholder="000000999"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Zelle Email or Phone
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.zelle_contact}
-                    onChange={(e) =>
-                      handleChange("zelle_contact", e.target.value)
-                    }
-                    placeholder="email@example.com or 330.647.3989"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed placeholder:text-gray-400"
-                  />
-                </div>
+                <Input
+                  label="ACH Account Number"
+                  type="text"
+                  value={settings.ach_account}
+                  onChange={(e) =>
+                    handleChange("ach_account", e.target.value)
+                  }
+                  placeholder="0000009999999999"
+                  disabled={loading}
+                />
+                <Input
+                  label="ACH Routing Number"
+                  type="text"
+                  value={settings.ach_routing}
+                  onChange={(e) =>
+                    handleChange("ach_routing", e.target.value)
+                  }
+                  placeholder="000000999"
+                  disabled={loading}
+                />
+                <Input
+                  label="Zelle Email or Phone"
+                  type="text"
+                  value={settings.zelle_contact}
+                  onChange={(e) =>
+                    handleChange("zelle_contact", e.target.value)
+                  }
+                  placeholder="email@example.com or 330.647.3989"
+                  disabled={loading}
+                />
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="lg"
               onClick={() => navigate("/")}
               disabled={loading}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={saving || loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              size="lg"
+              loading={saving}
+              disabled={loading}
+              loadingText="Saving..."
             >
-              {saving ? "Saving..." : loading ? "Loading..." : "Save Settings"}
-            </button>
+              {loading ? "Loading..." : "Save Settings"}
+            </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }
