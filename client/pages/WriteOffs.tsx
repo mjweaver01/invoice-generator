@@ -152,6 +152,10 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
 
   const totalWriteOffs = writeOffs.reduce((sum, w) => sum + w.amount, 0);
 
+  const sortedWriteOffs = [...writeOffs].sort(
+    (a, b) => b.date.localeCompare(a.date) || (b.id ?? 0) - (a.id ?? 0),
+  );
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <Card padding="lg">
@@ -315,7 +319,7 @@ export default function WriteOffs({ onLogout }: { onLogout?: () => void }) {
             </div>
 
             <div className="space-y-3">
-              {writeOffs.map((writeOff) => (
+              {sortedWriteOffs.map((writeOff) => (
                 <div
                   key={writeOff.id}
                   className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
